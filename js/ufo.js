@@ -29,7 +29,7 @@ dispatch.on("ufoEnter.scatterplot", function(sighting){
     gen_scatterplot();
 });*/
 
-d3.csv("http://localhost:8000/datafiles/ufo_clean.csv", function (data) {
+d3.csv("http://localhost:8000/datafiles/ufo.csv", function (data) {
     full_dataset = data;
     dataset = full_dataset.slice(0,35);
     //gen_bars();
