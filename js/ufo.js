@@ -125,9 +125,9 @@ function gen_scatterplot() {
 
     var xscale = d3.scaleLinear()
                        .domain([d3.min(dataset, function(d) {
-				    return d.latitude;})/1000000,
+				    return d.latitude;}),
                        d3.max(dataset, function(d) {
-				    return d.latitude;})/1000000])
+				    return d.latitude;})])
                        .range([padding,w-padding]);
 
     var yaxis = d3.axisLeft()
@@ -162,7 +162,7 @@ function gen_scatterplot() {
        .attr("fill","purple")
        .attr("cx",function(d, i) {
 			if (d.latitude == 0) {return padding;}
-                        return  xscale(d.latitude/1000000);
+                        return  xscale(d.latitude);
                  })
        .attr("cy",function(d) {
                  return hscale(d.longitude);
@@ -170,10 +170,4 @@ function gen_scatterplot() {
        .attr("title", function(d) {return d.title;})
        .on("mouseover", function(d) {
         dispatch.call("ufoEnter", d, d);});
-
-
-
-
-
-
 }
