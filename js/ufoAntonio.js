@@ -2,7 +2,7 @@ var dispatch = d3.dispatch("movieEnter");
 var dataset, full_dataset;
 var selectedCircle, selectedBar;
 
-//nota: quero apagar o "bars", deixar s? scatterplot, e mostrar coordenadas gps dos sightings
+//nota: quero apagar o "bars", deixar so' scatterplot, e mostrar coordenadas gps dos sightings
 
 /*dispatch.on("movieEnter.bars", function(movie){
     if(selectedBar != null){
@@ -31,7 +31,7 @@ dispatch.on("movieEnter.scatterplot", function(movie){
     gen_scatterplot();
 });*/
 
-d3.csv("datafiles/ufo03.csv", function (data) {
+d3.csv("datafiles/ufo03_sample.csv", function (data) {
     full_dataset = data;    
     dataset = full_dataset;//full_dataset.slice(0,35);
     //gen_bars();
