@@ -31,9 +31,10 @@ dispatch.on("movieEnter.scatterplot", function(movie){
     gen_scatterplot();
 });*/
 
-d3.csv("datafiles/ufo03_sample.csv", function (data) {
+
+d3.csv("datafiles/ufo03.csv", function (data) {
     full_dataset = data;    
-    dataset = full_dataset;//full_dataset.slice(0,35);
+    dataset = full_dataset; // .filter(function (d) {return d.country=="USA" || d.country=="GBR"});//full_dataset.slice(0,35);
     //gen_bars();
     gen_scatterplot();
 });
