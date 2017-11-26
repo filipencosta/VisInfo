@@ -1,17 +1,16 @@
 var number_sightings;
+var topo_us;
 
-var svg, map;
-
-var years = [1960, 2014];
+var mapSVG, map;
 var m_width = 1000,
-    width = 938,
+    mapWidth = 938,
     height = 600,
     country,
     state;
 
 var projection = d3.geoMercator()
     .scale(150)
-    .translate([width / 2, height / 1.5]);
+    .translate([mapWidth / 2, height / 1.5]);
 
 var path = d3.geoPath()
     .projection(projection);
@@ -33,13 +32,14 @@ d3.queue()
 
 function ready_map(error, us, sightings) {
     number_sightings = sightings;
+    topo_us = us;
     genMap();
     map.attr("id", "countries")
     .selectAll("path")
-    .data(topojson.feature(us, us.objects.countries).features)
+    .data(topojson.feature(us, topo_us.objects.countries).features)
     .enter()
     .append("path")
-    .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, years)); })
+    .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); })
     .attr("stroke", "black")
     .attr("stroke-width", 0.2)
     .attr("id", function(d) { return d.id; })
@@ -52,7 +52,9 @@ function total_sightings(id, years) {
     var number = 0;
     if (country) {
         for (var i = years[0]; i < years[1]; i++) {
-            number += country[i];
+            if (country.hasOwnProperty(i)) {
+                number += country[i];
+            }
         }
     }
 
@@ -68,15 +70,15 @@ function search(nameKey, myArray){
 }
 
 function genMap() {
-    svg = d3.select("#map").append("svg")
+    mapSVG = d3.select("#map").append("svg")
         .attr("preserveAspectRatio", "xMidYMid")
-        .attr("viewBox", "0 0 " + width + " " + height)
+        .attr("viewBox", "0 0 " + mapWidth + " " + height)
         .attr("width", m_width)
-        .attr("height", m_width * height / width);
+        .attr("height", m_width * height / mapWidth);
 
-    map = svg.append("g");
+    map = mapSVG.append("g");
 
-    g = svg.append("g")
+    g = mapSVG.append("g")
     .attr("class", "key")
     .attr("transform", "translate(0,40)");
 
@@ -123,7 +125,7 @@ function zoom(xyz) {
 
 function get_xyz(d) {
   var bounds = path.bounds(d);
-  var w_scale = (bounds[1][0] - bounds[0][0]) / width;
+  var w_scale = (bounds[1][0] - bounds[0][0]) / mapWidth;
   var h_scale = (bounds[1][1] - bounds[0][1]) / height;
   var z = .96 / Math.max(w_scale, h_scale);
   var x = (bounds[1][0] + bounds[0][0]) / 2;
@@ -144,7 +146,7 @@ function country_clicked(d) {
     country = d;
      zoom(xyz);
   } else {
-    var xyz = [width / 2, height / 1.5, 1];
+    var xyz = [mapWidth / 2, height / 1.5, 1];
     country = null;
     zoom(xyz);
   }
@@ -152,6 +154,6 @@ function country_clicked(d) {
 
 $(window).resize(function() {
   var w = $("#map").width();
-  svg.attr("width", w);
-  svg.attr("height", w * height / width);
+  mapSVG.attr("width", w);
+  mapSVG.attr("height", w * height / mapWidth);
 });
