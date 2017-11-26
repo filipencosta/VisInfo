@@ -3,8 +3,8 @@
 <meta charset="utf-8"/>
   <head>
    <title>Oscar Winners</title>
-   <link rel="stylesheet" href="oscars.css">   
-   <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script> 
+   <link rel="stylesheet" href="oscars.css">
+   <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
     <link rel="stylesheet" href="css/rSlider.css">
     <script src="js/rSlider.js"></script>
     <script src="js/underscore.js"></script>
@@ -69,16 +69,16 @@ var heatmapChart = function(data,country,year){
    //        console.log(data);
    // }
     ,function(error, data) {
-    var filteredData = data.filter(function(d) 
-    {  
+    var filteredData = data.filter(function(d)
+    {
 
         if(( country.includes(d["country"])) && (d["year"] >= year[0]) && (d["year"] <= year[1]))
-        { 
+        {
             return d;
-        } 
+        }
 
     })
-    
+
     ////////DATAGROUPER DECLARATION - BEGIN
     var DataGrouper = (function() {
     var has = function(obj, target) {
@@ -124,8 +124,8 @@ DataGrouper.register("sum", function(item) {
 });
 ////////DATAGROUPER DECLARATION - END
     filteredData = DataGrouper.sum(filteredData,["day", "hour"]);
-    
-    
+
+
     var colorScale = d3.scaleQuantile()
                     .domain([0, buckets - 1, d3.max(filteredData, function (d) { return d.value; })])
                     .range(colors);
@@ -143,7 +143,7 @@ DataGrouper.register("sum", function(item) {
                 .style("fill", colors[0]);
                 cards.transition().duration(1000).style("fill", function(d) { return colorScale(d.value); });
                 cards.select("title").text(function(d) { return d.value; });
-          
+
                 cards.exit().remove();
             var legend = svg.selectAll(".legend")
               .data([0].concat(colorScale.quantiles()), function(d) { return d; });
@@ -181,7 +181,7 @@ DataGrouper.register("sum", function(item) {
   //            cards.transition().duration(1000)
   //             .style("fill", function(d) { return colorScale(d.value); });
   //         cards.select("title").text(function(d) { return d.value; });
-          
+
   //         cards.exit().remove();
   //         var legend = svg.selectAll(".legend")
   //             .data([0].concat(colorScale.quantiles()), function(d) { return d; });
@@ -199,8 +199,8 @@ DataGrouper.register("sum", function(item) {
   //           .attr("x", function(d, i) { return legendElementWidth * i; })
   //           .attr("y", height + gridSize);
   //         legend.exit().remove();
-  
- 
+
+
 
   // var countrypicker = d3.select("#country_picker").selectAll(".country-button")
   //       .data(countries);
@@ -210,8 +210,8 @@ DataGrouper.register("sum", function(item) {
   //       .attr("class", "country-button")
   //       .on("click", function(d) {
   //         //heatmapChart(d);
-  //       }); 
-  
+  //       });
+
 
 heatmapChart(file_csv,countries,dates);
 var mySlider = new rSlider({
@@ -225,13 +225,13 @@ var mySlider = new rSlider({
     tooltip:  true,
     step:     10, // step size
     disabled: false, // is disabled?
-    onChange: (function (values) { 
+    onChange: (function (values) {
       var dates_vector=values.split(",");//transform to ['1960','2014']
       var lower_date= +dates_vector[0];
      var higher_date= +dates_vector[1];
      dates=[lower_date,higher_date];
      heatmapChart(file_csv,countries,dates);
-      
+
     }) // callback
 });
 
