@@ -7,6 +7,7 @@
    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
     <link rel="stylesheet" href="css/rSlider.css">
     <script src="js/rSlider.js"></script>
+    <script src="js/underscore.js"></script>
   </head>
 
   <body>
@@ -77,6 +78,54 @@ var heatmapChart = function(data,country,year){
         } 
 
     })
+    
+    ////////DATAGROUPER DECLARATION - BEGIN
+    var DataGrouper = (function() {
+    var has = function(obj, target) {
+        return _.any(obj, function(value) {
+            return _.isEqual(value, target);
+        });
+    };
+
+    var keys = function(data, names) {
+        return _.reduce(data, function(memo, item) {
+            var key = _.pick(item, names);
+            if (!has(memo, key)) {
+                memo.push(key);
+            }
+            return memo;
+        }, []);
+    };
+
+    var group = function(data, names) {
+        var stems = keys(data, names);
+        return _.map(stems, function(stem) {
+            return {
+                key: stem,
+                vals:_.map(_.where(data, stem), function(item) {
+                    return _.omit(item, names);
+                })
+            };
+        });
+    };
+
+    group.register = function(name, converter) {
+        return group[name] = function(data, names) {
+            return _.map(group(data, names), converter);
+        };
+    };
+
+    return group;
+}());
+DataGrouper.register("sum", function(item) {
+    return _.extend({}, item.key, {value: _.reduce(item.vals, function(memo, node) {
+        return memo + Number(node.value);
+    }, 0)});
+});
+////////DATAGROUPER DECLARATION - END
+    filteredData = DataGrouper.sum(filteredData,["day", "hour"]);
+    
+    
     var colorScale = d3.scale.quantile()
                     .domain([0, buckets - 1, d3.max(filteredData, function (d) { return d.value; })])
                     .range(colors);
