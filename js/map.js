@@ -145,10 +145,14 @@ function country_clicked(d) {
     var xyz = get_xyz(d);
     country = d;
      zoom(xyz);
+     countries=[country.id];
+     heatmapChart(file_csv,countries,dates);
   } else {
     var xyz = [mapWidth / 2, height / 1.5, 1];
     country = null;
     zoom(xyz);
+    countries=['USA'];
+    heatmapChart(file_csv,countries,dates);
   }
 }
 
