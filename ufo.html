@@ -4,16 +4,38 @@
   <head>
    <title>UFO Sightings</title>
    <link rel="stylesheet" href="css/ufo.css">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+   <script src="https://d3js.org/d3-geo.v1.min.js" charset="utf-8"></script>
    <script src="https://d3js.org/topojson.v3.min.js"></script>
-   <script src="js/ufo.js"></script>
+   <script src="https://d3js.org/d3-color.v1.min.js"></script>
+   <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+   <script src="https://d3js.org/d3-queue.v3.min.js"></script>
+   <script src="js/colourbrewer.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+   <link rel="stylesheet" href="css/rSlider.css">
+   <script src="js/rSlider.js"></script>
+   <script src="js/underscore.js"></script>
+
+
   </head>
 
   <body>
-    <h1>UFO Sightings</h1>
-    <div id="the_chart"> </div>
-    <div id="second_chart"> </div>
-    <div id="map"> </div>
-  </body>
+      <div class="row">
+          <div class="col-sm-4"> </div>
+          <div class="col-sm-4"> <input type="text" id="slider" class="slider" > </div>
+          <div class="col-sm-4"> </div>
+      </div>
 
+    <div class="row">
+        <div class="col-sm-6" id="map"> </div>
+        <div class="col-sm-1"> </div>
+        <div class="col-sm-5" id="heatmap"> </div>
+    </div>
+
+  </body>
+  <script src="js/heatmap_v2.js"></script>
+  <script src="js/map.js"></script>
 </html>

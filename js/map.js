@@ -1,44 +1,120 @@
+var number_sightings;
+var topo_us;
+
+var mapSVG, map;
 var m_width = 1000,
-    width = 938,
-    height = 500,
+    mapWidth = 938,
+    height = 600,
     country,
     state;
 
-var projection = d3.geo.mercator()
+var projection = d3.geoMercator()
     .scale(150)
-    .translate([width / 2, height / 1.5]);
+    .translate([mapWidth / 2, height / 1.5]);
 
-var path = d3.geo.path()
+var path = d3.geoPath()
     .projection(projection);
 
-var svg = d3.select("#map").append("svg")
-    .attr("preserveAspectRatio", "xMidYMid")
-    .attr("viewBox", "0 0 " + width + " " + height)
-    .attr("width", m_width)
-    .attr("height", m_width * height / width);
+var color = d3.scaleThreshold()
+    .domain([0, 100, 200, 500, 1000, 2000, 5000, 10000])
+    .range(colorbrewer.YlGnBu[9]);
+//d3.schemeBlues[9]
+//colorbrewer.YlGnBu[9]
 
-svg.append("rect")
-    .attr("class", "background")
-    .attr("width", width)
-    .attr("height", height)
-    .on("click", country_clicked);
+var x = d3.scaleLinear()
+    .domain([0, 1000])
+    .rangeRound([600, 860]);
 
-var g = svg.append("g");
+d3.queue()
+	.defer(d3.json, '/datafiles/world_map_v2.json')
+	.defer(d3.json, '/datafiles/number_sightings.json')
+	.await(ready_map);
 
-d3.json("/datafiles/world_map.json", function(error, us) {
-  g.append("g")
-    .attr("id", "countries")
+function ready_map(error, us, sightings) {
+    number_sightings = sightings;
+    topo_us = us;
+    genMap();
+    map.attr("id", "countries")
     .selectAll("path")
-    .data(topojson.feature(us, us.objects.countries).features)
+    .data(topojson.feature(us, topo_us.objects.countries).features)
     .enter()
     .append("path")
+    .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); })
+    .attr("stroke", "black")
+    .attr("stroke-width", 0.2)
     .attr("id", function(d) { return d.id; })
     .attr("d", path)
     .on("click", country_clicked);
-});
+}
+
+function total_sightings(id, years) {
+    var country = search(id, number_sightings);
+    var number = 0;
+    if (country) {
+        for (var i = years[0]; i < years[1]; i++) {
+            if (country.hasOwnProperty(i)) {
+                number += country[i];
+            }
+        }
+    }
+
+    return number
+}
+
+function search(nameKey, myArray){
+    for (var i=0; i < myArray.length; i++) {
+        if (myArray[i].country === nameKey) {
+            return myArray[i];
+        }
+    }
+}
+
+function genMap() {
+    mapSVG = d3.select("#map").append("svg")
+        .attr("preserveAspectRatio", "xMidYMid")
+        .attr("viewBox", "0 0 " + mapWidth + " " + height)
+        .attr("width", m_width)
+        .attr("height", m_width * height / mapWidth);
+
+    map = mapSVG.append("g");
+
+    g = mapSVG.append("g")
+    .attr("class", "key")
+    .attr("transform", "translate(0,40)");
+
+    g.selectAll("rect")
+      .data(color.range().map(function(d) {
+          d = color.invertExtent(d);
+          if (d[0] == null) d[0] = x.domain()[0];
+          if (d[1] == null) d[1] = x.domain()[1];
+          return d;
+        }))
+      .enter().append("rect")
+        .attr("height", 8)
+        .attr("x", function(d) { return x(d[0]); })
+        .attr("width", function(d) { return (x(d[1]) - x(d[0])); })
+        .attr("fill", function(d) { return color(d[0]); });
+
+    g.append("text")
+        .attr("class", "caption")
+        .attr("x", x.range()[0])
+        .attr("y", -6)
+        .attr("fill", "#000")
+        .attr("text-anchor", "start")
+        .attr("font-weight", "bold")
+        .text("Number of Sightings");
+
+    g.call(d3.axisBottom(x)
+        .tickSize(12)
+        .tickPadding(3)
+        .tickFormat(function(x, i) { return i ? x : x; })
+        .tickValues(color.domain()))
+      .select(".domain")
+        .remove();
+}
 
 function zoom(xyz) {
-  g.transition()
+  map.transition()
     .duration(750)
     .attr("transform", "translate(" + projection.translate() + ")scale(" + xyz[2] + ")translate(-" + xyz[0] + ",-" + xyz[1] + ")")
     .selectAll(["#countries", "#states", "#cities"])
@@ -49,7 +125,7 @@ function zoom(xyz) {
 
 function get_xyz(d) {
   var bounds = path.bounds(d);
-  var w_scale = (bounds[1][0] - bounds[0][0]) / width;
+  var w_scale = (bounds[1][0] - bounds[0][0]) / mapWidth;
   var h_scale = (bounds[1][1] - bounds[0][1]) / height;
   var z = .96 / Math.max(w_scale, h_scale);
   var x = (bounds[1][0] + bounds[0][0]) / 2;
@@ -58,74 +134,26 @@ function get_xyz(d) {
 }
 
 function country_clicked(d) {
-  g.selectAll(["#states", "#cities"]).remove();
+  map.selectAll(["#states", "#cities"]).remove();
   state = null;
 
   if (country) {
-    g.selectAll("#" + country.id).style('display', null);
+    map.selectAll("#" + country.id).style('display', null);
   }
 
   if (d && country !== d) {
     var xyz = get_xyz(d);
     country = d;
-
-    if (d.id  == 'USA' || d.id == 'JPN') {
-      d3.json("/json/states_" + d.id.toLowerCase() + ".topo.json", function(error, us) {
-        g.append("g")
-          .attr("id", "states")
-          .selectAll("path")
-          .data(topojson.feature(us, us.objects.states).features)
-          .enter()
-          .append("path")
-          .attr("id", function(d) { return d.id; })
-          .attr("class", "active")
-          .attr("d", path)
-          .on("click", state_clicked);
-
-        zoom(xyz);
-        g.selectAll("#" + d.id).style('display', 'none');
-      });
-    } else {
-      zoom(xyz);
-    }
+     zoom(xyz);
   } else {
-    var xyz = [width / 2, height / 1.5, 1];
+    var xyz = [mapWidth / 2, height / 1.5, 1];
     country = null;
     zoom(xyz);
   }
 }
 
-function state_clicked(d) {
-  g.selectAll("#cities").remove();
-
-  if (d && state !== d) {
-    var xyz = get_xyz(d);
-    state = d;
-
-    country_code = state.id.substring(0, 3).toLowerCase();
-    state_name = state.properties.name;
-
-    d3.json("/json/cities_" + country_code + ".topo.json", function(error, us) {
-      g.append("g")
-        .attr("id", "cities")
-        .selectAll("path")
-        .data(topojson.feature(us, us.objects.cities).features.filter(function(d) { return state_name == d.properties.state; }))
-        .enter()
-        .append("path")
-        .attr("id", function(d) { return d.properties.name; })
-        .attr("class", "city")
-        .attr("d", path.pointRadius(20 / xyz[2]));
-
-      zoom(xyz);
-    });
-  } else {
-    state = null;
-    country_clicked(country);
-  }
-}
-
 $(window).resize(function() {
   var w = $("#map").width();
-  svg.attr("width", w);
-  svg.attr("height", w * height / width);
+  mapSVG.attr("width", w);
+  mapSVG.attr("height", w * height / mapWidth);
 });
