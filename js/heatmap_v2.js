@@ -124,7 +124,7 @@ var heatmapChart = function(data,country,year){
             .attr("width", gridSize)
             .attr("height", gridSize)
             .style("fill", colors[0]);
-            cards.transition().duration(1000).style("fill", function(d) { return colorScale(d.value); });
+            cards.transition().duration(750).style("fill", function(d) { return colorScale(d.value); });
             cards.select("title").text(function(d) { return d.value; });
 
             cards.exit().remove();
@@ -214,5 +214,6 @@ var heatmapChart = function(data,country,year){
             var higher_date= +dates_vector[1];
             dates=[lower_date,higher_date];
             heatmapChart(file_csv,countries,dates);
+            updateMap();
         }) // callback
     });
