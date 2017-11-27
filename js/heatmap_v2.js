@@ -1,14 +1,14 @@
 // INPUT TO HEATMAPCHART
 var countries = ['USA'];
 var file_csv="/datafiles/heatmapfinalv2.csv";
-var dates =[1960,2014];
+var dates =[1962,2014];
 
 
 
 
 var margin = { top: 50, right: 0, bottom: 100, left: 30 },
 width = 750 - margin.left - margin.right,
-height = 430 - margin.top - margin.bottom,
+height = 370 - margin.top - margin.bottom,
 gridSize = Math.floor(width / 24),
 legendElementWidth = gridSize*2,
 buckets = 9,
@@ -128,6 +128,7 @@ var heatmapChart = function(data,country,year){
             cards.select("title").text(function(d) { return d.value; });
 
             cards.exit().remove();
+
             var legend = svg.selectAll(".legend")
             .data([0].concat(colorScale.quantiles()), function(d) { return d; });
             legend.enter().append("g")
@@ -199,7 +200,7 @@ var heatmapChart = function(data,country,year){
     heatmapChart(file_csv,countries,dates);
     var mySlider = new rSlider({
         target: '#slider',
-        values: [1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014],
+        values: [1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014],
         range: true, // range slider
         //set:    null, // an array of preselected values
         width:    500,
