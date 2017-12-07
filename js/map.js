@@ -16,14 +16,18 @@ var path = d3.geoPath()
     .projection(projection);
 
 var color = d3.scaleThreshold()
-    .domain([0, 100, 200, 500, 1000, 2000, 5000, 10000])
+    .domain([0, 5, 100, 200, 500, 1000, 5000, 10000])
     .range(colorbrewer.YlGnBu[9]);
 //d3.schemeBlues[9]
 //colorbrewer.YlGnBu[9]
 
-var x = d3.scaleLinear()
-    .domain([0, 1000])
-    .rangeRound([600, 860]);
+var x = d3.scaleThreshold()
+    .domain([0, 5, 100, 200, 500, 1000, 5000, 10000])
+    .range([600, 630, 660, 690, 720, 750, 780, 810, 840]);
+
+// var x = d3.scaleLinear()
+//     .domain([0, 10000])
+//     .rangeRound([600, 860]);
 
 d3.queue()
 	.defer(d3.json, '/datafiles/world_map_v2.json')
@@ -47,7 +51,29 @@ function ready_map(error, us, sightings) {
     .on("click", country_clicked);
 }
 
+function updateMap() {
+    var update = map.transition();
+
+
+    update
+    .selectAll("path")
+    .duration(750)
+    .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); });
+    // map.attr("id", "countries")
+    // .selectAll("path")
+    // .data(topojson.feature(us, topo_us.objects.countries).features)
+    // .enter()
+    // .append("path")
+    // .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); })
+    // .attr("stroke", "black")
+    // .attr("stroke-width", 0.2)
+    // .attr("id", function(d) { return d.id; })
+    // .attr("d", path)
+    // .on("click", country_clicked);
+}
+
 function total_sightings(id, years) {
+    console.log(id);
     var country = search(id, number_sightings);
     var number = 0;
     if (country) {
@@ -74,7 +100,8 @@ function genMap() {
         .attr("preserveAspectRatio", "xMidYMid")
         .attr("viewBox", "0 0 " + mapWidth + " " + height)
         .attr("width", m_width)
-        .attr("height", m_width * height / mapWidth);
+        .attr("height", m_width * height / mapWidth)
+        .attr("border", "solid");
 
     map = mapSVG.append("g");
 

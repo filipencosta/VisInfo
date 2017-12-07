@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8"/>
+  <head>
+   <title>Oscar Winners</title>
+   <link rel="stylesheet" href="/css/ufo.css">
+   <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+  </head>
+<body>
+  <script>
+  //INPUT TO Slopegraph
+    var countries = ['USA'];
+    var file_csv="/datafiles/slopegraph.csv";
+    var dates =[2013,2014];
+    var selectedLine;
+
+	function changecolor (classe){
+		if (selectedLine!=null){
+			d3.selectAll('.rightlabel-'+selectedLine).style('fill', 'Black');
+			d3.selectAll('.leftlabel-'+selectedLine).style('fill', 'Black');
+			d3.selectAll('.line-'+selectedLine).style('stroke', 'Black');
+		}
+		var line = this.getAttribute('class');
+		d3.selectAll('.'+line).style('stroke', 'Red');
+		d3.selectAll('.'+line).transition().style('opacity', 1);
+		var temp=line.split('-');
+		var number=temp[1];
+		selectedLine=number;
+		d3.selectAll('.rightlabel-'+number).style('fill', 'Red');
+		d3.selectAll('.leftlabel-'+number).style('fill', 'Red');
+		d3.selectAll('.rightlabel-'+number).transition().style('opacity', 1);
+		d3.selectAll('.leftlabel-'+number).transition().style('opacity', 1);
+		for(var i = 0 ; i<21;i++){
+			if(i!=parseInt(number)){
+				d3.selectAll('.rightlabel-'+i).transition().style('opacity', 0.1);
+				d3.selectAll('.leftlabel-'+i).transition().style('opacity', 0.1);
+				d3.selectAll('.line-'+i).transition().style('opacity', 0.1);
+			}
+		}
+
+	};
+
+ 	var margin = {top: 50, right: 0, bottom: 100, left: 30},
+    	width = 550 - margin.left - margin.right,
+        height = 430 - margin.top - margin.bottom,
+        labelLength = 50;
+
+    var svg = d3.select("body").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var slopegraph = function(data,country,year){
+    	d3.csv(data, function(data) {
+    	//if(error) throw error;
+    	return{
+      		year : +data.year,
+      		country : data.country,
+      		shape: data.shape,
+      		value : +data.value
+    };
+   } ,function(error, data) {
+    var filteredData1 = data.filter(function(d)
+    {
+
+        if(( country.includes(d["country"])) && (d["year"] == year[0]))
+        {
+            return d;
+        }
+
+    })
+    var filteredData2 = data.filter(function(d)
+    {
+
+        if(( country.includes(d["country"])) && (d["year"] == year[1]))
+        {
+            return d;
+        }
+
+    })
+    var filteredDataAll=filteredData1.concat(filteredData2);
+
+   // concatenate the two table by the shape key;
+   values1=[];
+   values2=[];
+    for (i in filteredData1){
+    	values1.push(filteredData1[i].value)
+    	for(k in filteredData2){
+    		if(filteredData1[i].shape==filteredData2[k].shape){
+    			filteredData1[i]['value2']=filteredData2[k].value;
+    			values2.push(filteredData2[k].value);
+    			break;
+    		}
+    	}
+    }
+    
+    //var scale = d3.scaleLinear().domain(d3.extent(filteredDataAll, function(d) { return d.value;})).range([0,height]);
+    // var xScale = d3.scaleLinear()
+    // .domain([0, 15])
+    // .range([0, width]);
+    var maxValue = d3.max(filteredDataAll, function (d) { return d.value; } );
+
+	var yScale = d3.scaleLinear()
+    .domain([0, maxValue])
+    .range([height,0]);
+   // var scale = d3.scaleLinear().domain(d3.extent(d3.merge(data))).range([0, height]);
+	for (var i =0; i<values1.length;i++){ 
+	   svg.append('line')
+	    .style('stroke', 'black')
+	    .attr('x1', margin.left + labelLength)
+	    .attr('y1', yScale(values1[i]))
+	    .attr('x2', width - margin.right - labelLength)
+	    .attr('y2', yScale(values2[i]))
+	    .attr('class','line-'+i)
+	    .on("mouseover", changecolor);
+	}
+
+	// LEFT LABEL
+	for (var i =0; i<values1.length;i++){
+	    svg.append('text')
+	    	.attr('x',margin.left)
+	    	.attr('y',yScale(values1[i]))
+	    	.text(filteredData1[i].shape)
+	    	.attr('class', 'leftlabel-' + i);
+	}
+	// RIGTH LABEL
+	for (var i =0; i<values2.length;i++){
+	    svg.append('text')
+	    	.attr('x',width - margin.right-labelLength)
+	    	.attr('y',yScale(values2[i]))
+	    	.text(filteredData1[i].shape)
+	    	.attr('class', 'rightlabel-' + i);
+	}
+
+
+
+
+
+	// var lines = svg.selectAll('line.slope-line')
+ //                .data(values3);
+ //            lines.enter().append("line");
+ //            lines.attr('class','slope-line');
+ //            lines.attr('x1',margin.left + labelLength);
+ //            lines.attr('x2',width - margin.right - labelLength);
+ //            lines.attr('y1',function(d) { return margin.top + scale(d[0]); });
+ //            lines.attr('y2',function(d) { return margin.top + scale(d[1]); });
+ //            lines.exit().remove();
+ //            //         x1: margin.left + labelLength,
+ //            //         x2: width - margin.right - labelLength,
+ //            //         y1: function(d) { return margin.top + scale(d[0]); },
+ //            //         y2: function(d) { return margin.top + scale(d[1]); }});
+ //            // lines.exit().remove();
+
+ //     var leftLabels = svg.selectAll('text.left_labels')
+ //                .data(data);
+ //            leftLabels.enter().append('text');
+ //            leftLabels.attr('class','left_labels slope-label');
+ //            leftLabels.attr('x', margin.left + labelLength);
+ //            leftLabels.attr('y',function(d,i) { return margin.top + scale(d[1]); });
+ //            leftLabels.attr('dy','.35em','text-anchor','end');
+ //            leftLabels.text(function(d,i) { return dataset.label[0][i] });
+ //            leftLabels.exit().remove();
+	
+    }
+
+   )};
+
+   slopegraph(file_csv,countries,dates)
+
+  </script>
+
+ </body>
+
+</html>
