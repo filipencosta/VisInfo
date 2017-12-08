@@ -14,6 +14,20 @@
     var dates =[2013,2014];
     var selectedLine;
 
+  function findMax(lista){
+    var maxElement=lista[0];
+    var index;
+    var lista2=lista;
+    for(var i in lista2){
+      if (maxElement.value < lista2[i].value){
+        maxElement=lista2[i];
+        index=i;
+      }
+    }
+    lista2.splice(index,1);
+    return [maxElement,lista2];
+  };
+
 	function changecolor (classe){
 		if (selectedLine!=null){
 			d3.selectAll('.rightlabel-'+selectedLine).style('fill', 'Black');
@@ -79,11 +93,51 @@
         }
 
     })
-    var filteredDataAll=filteredData1.concat(filteredData2);
+    var finalfilteredData1=[];
+    var finalfilteredData2=[];
+    var temp = JSON.parse(JSON.stringify(filteredData1));
+    for(var i = 0; i<5;i++){
+      var aux= findMax(temp);
+      finalfilteredData1.push(aux[0]);
+      temp=aux[1];
+    }
+    var temp = JSON.parse(JSON.stringify(filteredData2));
+    for(var i = 0; i<5;i++){
+      var aux= findMax(temp);
+      finalfilteredData2.push(aux[0]);
+      temp=aux[1];
+    }
+    var present =0;
+    for(var i in finalfilteredData1){
+      for(var j in finalfilteredData2){
+        if(finalfilteredData1[i].shape==finalfilteredData2[j].shape)
+          present=1;
+      }
+      if(present==0){
+        finalfilteredData2.push(finalfilteredData1[i]);
+      }
+      present=0;
+    }
+    var present =0;
+    for(var i in finalfilteredData2){
+      for(var j in finalfilteredData1){
+        if(finalfilteredData2[i].shape==finalfilteredData1[j].shape)
+          present=1;
+      }
+      if(present==0){
+        finalfilteredData1.push(finalfilteredData2[i]);
+      }
+      present=0;
+    }
+    filteredData1=finalfilteredData1;
+    filteredData2=finalfilteredData2;
+
+
+    
 
    // concatenate the two table by the shape key;
-   values1=[];
-   values2=[];
+   var values1=[];
+   var values2=[];
     for (i in filteredData1){
     	values1.push(filteredData1[i].value)
     	for(k in filteredData2){
@@ -99,6 +153,7 @@
     // var xScale = d3.scaleLinear()
     // .domain([0, 15])
     // .range([0, width]);
+    var filteredDataAll=filteredData1.concat(filteredData2);
     var maxValue = d3.max(filteredDataAll, function (d) { return d.value; } );
 
 	var yScale = d3.scaleLinear()
