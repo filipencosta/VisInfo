@@ -5,7 +5,6 @@ var dates =[1960,2014];
 
 
 
-
 var margin = { top: 50, right: 0, bottom: 100, left: 30 },
 width = 750 - margin.left - margin.right,
 height = 430 - margin.top - margin.bottom,
@@ -107,10 +106,23 @@ var heatmapChart = function(data,country,year){
             });
             ////////DATAGROUPER DECLARATION - END
             filteredData = DataGrouper.sum(filteredData,["day", "hour"]);
-
-
+            var finalfilteredData=filteredData;
+            var hoursaux=[24,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+            var daysaux=[1,2,3,4,5,6,7];
+            for(var i in hoursaux){
+                for(var k in filteredData ){
+                    if(filteredData[k].hour==hoursaux[i]){
+                        var index=daysaux.indexOf(filteredData[k].day);
+                        daysaux.splice(index,1);
+                    }
+                }
+                for(var j in daysaux){
+                    finalfilteredData.push({day: daysaux[j], hour: hoursaux[i], value: 0});
+                }
+                daysaux=[1,2,3,4,5,6,7];
+            }
             var colorScale = d3.scaleQuantile()
-            .domain([0, buckets - 1, d3.max(filteredData, function (d) { return d.value; })])
+            .domain([0, buckets - 1, d3.max(finalfilteredData, function (d) { return d.value; })])
             .range(colors);
             var cards = svg.selectAll(".hour")
             .data(filteredData, function(d) {return d.day+':'+d.hour;});
@@ -120,7 +132,7 @@ var heatmapChart = function(data,country,year){
             .attr("y", function(d) { return (d.day - 1) * gridSize; })
             .attr("rx", 4)
             .attr("ry", 4)
-            .attr("class", "hour bordered")
+            .attr("class", "hour")
             .attr("width", gridSize)
             .attr("height", gridSize)
             .style("fill", colors[0]);
