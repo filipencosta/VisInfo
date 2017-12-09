@@ -18,7 +18,7 @@ var xAxis = d3.axisBottom()
     .scale(x);
 
 var yAxis = d3.axisLeft()
-    .scale(y)
+    .scale(y);
     ;//.tickFormat(formatPct);
 
 var line = d3.line()
@@ -41,7 +41,7 @@ var dataNested = {}
     // d.value = 0;//+d.value;
   // });
   
-d3.csv("datafiles/heatmapfinalv2.csv", function(error, data) {
+d3.csv("datafiles/groupbyCountryYear.csv", function(error, data) {
   data.forEach(function(d) {
       d.year = parseDate(d.year);
       //day : +data.day;
@@ -93,14 +93,16 @@ DataGrouper.register("sum", function(item) {
     }, 0)});
 });
 ////////DATAGROUPER DECLARATION - END
-    data = DataGrouper.sum(data,["year","country"]);
+    
+    //JA ESTA NO PREPROCESSAMENTO
+    //data = DataGrouper.sum(data,["year","country"]);
   
 
   var dataNested = d3.nest()
     .key(function (d) { return d.country })
     .entries(data)
     
-  console.log(dataNested);
+  //console.log(dataNested);
 
   div.append('select')
       .attr('id','variableSelect')
@@ -116,7 +118,8 @@ DataGrouper.register("sum", function(item) {
 
   dataFiltered.sort(function(a,b){return a.year - b.year;});
   
-  console.log(dataFiltered);
+  //console.log(dataFiltered);
+  console.log(x);
   
   x.domain(d3.extent(dataFiltered[0].values, function(d) { return d.year; }));
   y.domain(d3.extent(dataFiltered[0].values, function(d) { return d.value; }));
@@ -149,7 +152,7 @@ DataGrouper.register("sum", function(item) {
     d3.select('.xAxis').transition().duration(1000).call(xAxis)
     d3.select('.yAxis').transition().duration(1000).call(yAxis)
     d3.select('.line').datum(dataFiltered[0].values).attr('d',line)
-    console.log(dataFiltered);
+    //console.log(dataFiltered);
 	 }
 
 });
