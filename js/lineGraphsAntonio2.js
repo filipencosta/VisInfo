@@ -1,4 +1,5 @@
-var div = d3.select('body').append('div')
+var div = d3.select('body').append('div');
+var countrydata=[];
 
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
@@ -40,6 +41,13 @@ var dataNested = {}
     // d.cror = +d.cror;
     // d.value = 0;//+d.value;
   // });
+
+d3.csv("datafiles/countrySort.csv", function(error, data) {
+   for (var i = 0; i < data.length; i++) {
+        countrydata.push({key: data[i].country});
+    }
+});
+
   
 d3.csv("datafiles/groupbyCountryYear.csv", function(error, data) {
   data.forEach(function(d) {
@@ -102,13 +110,14 @@ DataGrouper.register("sum", function(item) {
     .key(function (d) { return d.country })
     .entries(data)
     
-  //console.log(dataNested);
+  console.log(dataNested);
+  
 
   div.append('select')
       .attr('id','variableSelect')
       .on('change',variableChange)
     .selectAll('option')  
-      .data(dataNested).enter()
+      .data(countrydata).enter()
     .append('option')
       .attr('value',function (d) { return d.key })
       .text(function (d) { return d.key })
@@ -119,7 +128,7 @@ DataGrouper.register("sum", function(item) {
   dataFiltered.sort(function(a,b){return a.year - b.year;});
   
   //console.log(dataFiltered);
-  console.log(x);
+  //console.log(x);
   
   x.domain(d3.extent(dataFiltered[0].values, function(d) { return d.year; }));
   y.domain([0, d3.max(dataFiltered[0].values, function(d) { return d.value; })]);
