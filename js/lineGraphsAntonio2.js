@@ -122,7 +122,8 @@ DataGrouper.register("sum", function(item) {
   console.log(x);
   
   x.domain(d3.extent(dataFiltered[0].values, function(d) { return d.year; }));
-  y.domain(d3.extent(dataFiltered[0].values, function(d) { return d.value; }));
+  y.domain([0, d3.max(dataFiltered[0].values, function(d) { return d.value; })]);
+  //y.domain(d3.extent(dataFiltered[0].values, function(d) { return d.value; }));
 
   svg.append("g")
       .attr("class", "xAxis")
@@ -148,7 +149,8 @@ DataGrouper.register("sum", function(item) {
   	var value = this.value
    	var dataFiltered = dataNested.filter(function (d) { return d.key===value })
     x.domain(d3.extent(dataFiltered[0].values, function(d) { return d.year; }));
-    y.domain(d3.extent(dataFiltered[0].values, function(d) { return d.value; }));
+    y.domain([0, d3.max(dataFiltered[0].values, function(d) { return d.value; })]);
+    //y.domain(d3.extent(dataFiltered[0].values, function(d) { return d.value; }));
     d3.select('.xAxis').transition().duration(1000).call(xAxis)
     d3.select('.yAxis').transition().duration(1000).call(yAxis)
     d3.select('.line').datum(dataFiltered[0].values).attr('d',line)
