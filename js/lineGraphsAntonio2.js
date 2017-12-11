@@ -49,7 +49,7 @@ d3.csv("datafiles/countrySort.csv", function(error, data) {
 });
 
   
-d3.csv("datafiles/groupbyCountryYear.csv", function(error, data) {
+d3.csv("datafiles/groupbyCountryYear_addedZeros.csv", function(error, data) {
   data.forEach(function(d) {
       d.year = parseDate(d.year);
       //day : +data.day;
