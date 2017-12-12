@@ -19,6 +19,9 @@
     var countries = ['USA'];
     var file_csv="/datafiles/heatmapfinalv2.csv";
     var dates =[1960,2014];
+    
+    //teste p apagar legendas
+    var legend;
 
 
 
@@ -145,7 +148,11 @@ DataGrouper.register("sum", function(item) {
                 cards.select("title").text(function(d) { return d.value; });
 
                 cards.exit().remove();
-            var legend = svg.selectAll(".legend")
+                
+            if(legend == null){
+                console.log("null subtitle");
+                
+                legend = svg.selectAll(".legend")
               .data([0].concat(colorScale.quantiles()), function(d) { return d; });
           legend.enter().append("g")
               .attr("class", "legend");
@@ -160,6 +167,51 @@ DataGrouper.register("sum", function(item) {
             .text(function(d) { return "≥ " + Math.round(d); })
             .attr("x", function(d, i) { return legendElementWidth * i; })
             .attr("y", height + gridSize);
+            }
+            else{
+                console.log("Not null subtitle");
+                
+                legend = svg.selectAll(".legend")
+              .data([0].concat(colorScale.quantiles()), function(d) { return d; });
+          legend.enter().append("g")
+              .attr("class", "legend");
+          legend.append("rect")
+            .attr("x", function(d, i) { return legendElementWidth * i; })
+            .attr("y", height)
+            .attr("width", legendElementWidth)
+            .attr("height", gridSize / 2)
+            .style("fill", function(d, i) { return colors[i]; });
+          legend.append("text")
+            .attr("class", "mono")
+            .text(function(d) { return "≥ " + Math.round(d); })
+            .attr("x", function(d, i) { return legendElementWidth * i; })
+            .attr("y", height + gridSize);
+            }
+            
+            ///////////abordagem alternativa (nenhuma delas funciona por agora)
+            
+            <!-- if(legend!=null){ -->
+                <!-- legend = svg.selectAll(".legend") -->
+              <!-- .data([0].concat(colorScale.quantiles()), function(d) { return d; }); -->
+                <!-- legend.exit().remove(); -->
+                <!-- console.log("subtitle not null"); -->
+            <!-- } -->
+            
+            <!-- legend = svg.selectAll(".legend") -->
+              <!-- .data([0].concat(colorScale.quantiles()), function(d) { return d; }); -->
+          <!-- legend.enter().append("g") -->
+              <!-- .attr("class", "legend"); -->
+          <!-- legend.append("rect") -->
+            <!-- .attr("x", function(d, i) { return legendElementWidth * i; }) -->
+            <!-- .attr("y", height) -->
+            <!-- .attr("width", legendElementWidth) -->
+            <!-- .attr("height", gridSize / 2) -->
+            <!-- .style("fill", function(d, i) { return colors[i]; }); -->
+          <!-- legend.append("text") -->
+            <!-- .attr("class", "mono") -->
+            <!-- .text(function(d) { return "≥ " + Math.round(d); }) -->
+            <!-- .attr("x", function(d, i) { return legendElementWidth * i; }) -->
+            <!-- .attr("y", height + gridSize); -->
     }
   );}
   // },function(error, data) {
