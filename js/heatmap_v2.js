@@ -128,6 +128,7 @@ var heatmapChart = function(data,country,year){
             cards.select("title").text(function(d) { return d.value; });
 
             cards.exit().remove();
+            //$(".legend").empty();
 
             var legend = svg.selectAll(".legend")
             .data([0].concat(colorScale.quantiles()), function(d) { return d; });

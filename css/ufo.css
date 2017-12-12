@@ -33,3 +33,7 @@ h1 {
 #countries {
 
 }
+
+.nowrap {
+    white-space: nowrap;
+}
