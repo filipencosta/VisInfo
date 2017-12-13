@@ -10,7 +10,7 @@
 <body>
   <script>
   //INPUT TO Slopegraph
-    var countries = ['USA','CAN'];
+    var countries = ['USA'];
     var file_csv="/datafiles/slopegraph.csv";
     var dates =[2013,2014];
     var selectedLine;
@@ -151,16 +151,37 @@
             ////////DATAGROUPER DECLARATION - END
     filteredData1 = DataGrouper.sum(filteredData1,["shape"]);
     filteredData2 = DataGrouper.sum(filteredData2,["shape"]);
+    console.log(filteredData1);
+    if ((filteredData1.length==0)&&(filteredData2.length==0)){
+      svg.append('text').text('NO SIGHTINGS REPORTED IN ' + dates + ' IN ' + countries);
+      return; 
+    }
+    else if((filteredData1.length==0)){
+      svg.append('text').text('NO SIGHTINGS REPORTED IN ' + dates[0] + ' IN ' + countries);
+      return; 
+    }
+    else if((filteredData2.length==0)){
+      svg.append('text').text('NO SIGHTINGS REPORTED IN ' + dates[1] + ' IN ' + countries);
+      return; 
+    }
     var finalfilteredData1=[];
     var finalfilteredData2=[];
     var temp = JSON.parse(JSON.stringify(filteredData1));
-    for(var i = 0; i<5;i++){
+    var maxtopleft=5;
+    if(filteredData1.length<5){
+      maxtopleft=filteredData1.length;
+    }
+    var maxtopright=5;
+    if(filteredData2.length<5){
+      maxtopright=filteredData2.length;
+    }
+    for(var i = 0; i<maxtopleft;i++){
       var aux= findMax(temp);
       finalfilteredData1.push(aux[0]);
       temp=aux[1];
     }
     var temp = JSON.parse(JSON.stringify(filteredData2));
-    for(var i = 0; i<5;i++){
+    for(var i = 0; i<maxtopright;i++){
       var aux= findMax(temp);
       finalfilteredData2.push(aux[0]);
       temp=aux[1];
@@ -190,7 +211,6 @@
     filteredData1=finalfilteredData1;
     filteredData2=finalfilteredData2;
 
-
     
 
    // concatenate the two table by the shape key;
@@ -206,6 +226,37 @@
     		}
     	}
     }
+
+    var textdataleft = JSON.parse(JSON.stringify(values1));
+    var textdataright = JSON.parse(JSON.stringify(values2));
+    var notchanged=true;
+    while(notchanged){
+      notchanged=false;
+      for(var i=0; i<textdataright.length;i++){
+        for(var k=0; k<textdataright.length;k++){
+          if (i !=k){
+            if((textdataright[i] - textdataright[k]<=40) && (textdataright[i] - textdataright[k]>=0)){
+              textdataright[i]=textdataright[i]+10;
+              notchanged=true;
+            }
+          }
+        }
+      }
+    } 
+    var notchanged=true;
+    while(notchanged){
+      notchanged=false;
+      for(var i=0; i<textdataleft.length;i++){
+        for(var k=0; k<textdataleft.length;k++){
+          if (i !=k){
+            if((textdataleft[i] - textdataleft[k]<=40) && (textdataleft[i] - textdataleft[k]>=0)){
+              textdataleft[i]=textdataleft[i]+10;
+              notchanged=true;
+            }
+          }
+        }
+      }
+    } 
     
     //var scale = d3.scaleLinear().domain(d3.extent(filteredDataAll, function(d) { return d.value;})).range([0,height]);
     // var xScale = d3.scaleLinear()
@@ -234,7 +285,7 @@
 	for (var i =0; i<values1.length;i++){
 	    svg.append('text')
 	    	.attr('x',margin.left)
-	    	.attr('y',yScale(values1[i]))
+	    	.attr('y',yScale(textdataleft[i]))
 	    	.text(filteredData1[i].shape)
 	    	.attr('class', 'leftlabel-' + i);
 	}
@@ -242,7 +293,7 @@
 	for (var i =0; i<values2.length;i++){
 	    svg.append('text')
 	    	.attr('x',width - margin.right-labelLength)
-	    	.attr('y',yScale(values2[i]))
+	    	.attr('y',yScale(textdataright[i]))
 	    	.text(filteredData1[i].shape)
 	    	.attr('class', 'rightlabel-' + i);
 	}
