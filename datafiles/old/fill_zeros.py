@@ -1,12 +1,12 @@
 
 
-file_new = open('groupbyCountryYear_addedZeros.csv', 'w')
+file_new = open('MoviesGroupByYear_addedZeros.csv', 'w')
 
-countries_list = open('countrySort.csv','r')
+countries_list = open('countrySort_temp.csv','r')
 ignore_first_line= countries_list.readline()
-
+file_new.write('"year","country","value"\n')
 for country in countries_list:
-    file_old = open('groupbyCountryYear.csv', 'r')
+    file_old = open('MoviesGroupByYear.csv', 'r')
     ignore_first_line= file_old.readline()
     hasAppeared = False    
     previous_year = 1900
