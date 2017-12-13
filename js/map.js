@@ -4,13 +4,13 @@ var topo_us;
 var mapSVG, map;
 var m_width = 1000,
     mapWidth = 938,
-    height = 600,
+    mapHeight = 600,
     country,
     state;
 
 var projection = d3.geoMercator()
     .scale(150)
-    .translate([mapWidth / 2, height / 1.5]);
+    .translate([mapWidth / 2, mapHeight / 1.5]);
 
 var path = d3.geoPath()
     .projection(projection);
@@ -21,9 +21,25 @@ var color = d3.scaleThreshold()
 //d3.schemeBlues[9]
 //colorbrewer.YlGnBu[9]
 
+function placeKey(Xmin, Xmax, ticks) {
+    var r = [];
+    var temp = Xmin;
+    var diff = (Xmax-Xmin)/ticks;
+    while (temp <= Xmax) {
+        r.push(temp);
+        temp = temp + diff;
+    }
+    return r;
+}
+
+
+
 var x = d3.scaleThreshold()
     .domain([0, 5, 100, 200, 500, 1000, 5000, 10000])
-    .range([600, 630, 660, 690, 720, 750, 780, 810, 840]);
+    .range(placeKey(0, 360, 10));
+var yMap = d3.scaleThreshold()
+    .domain([0, 5, 100, 200, 500, 1000, 5000, 10000])
+    .range(placeKey(-325, 35, 10).reverse());
 
 // var x = d3.scaleLinear()
 //     .domain([0, 10000])
@@ -47,29 +63,26 @@ function ready_map(error, us, sightings) {
     .attr("stroke", "black")
     .attr("stroke-width", 0.2)
     .attr("id", function(d) { return d.id; })
-    .attr("d", path)
-    .on("click", country_clicked);
+    .attr("d", path).
+    on("click", country_clicked);
+
+    d3.select("#reset").on("click", reset);
+}
+
+function zoomed() {
+  map.attr("transform", d3.event.transform);
+}
+
+function nozoom() {
+  d3.event.preventDefault();
 }
 
 function updateMap() {
     var update = map.transition();
-
-
     update
     .selectAll("path")
     .duration(750)
     .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); });
-    // map.attr("id", "countries")
-    // .selectAll("path")
-    // .data(topojson.feature(us, topo_us.objects.countries).features)
-    // .enter()
-    // .append("path")
-    // .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); })
-    // .attr("stroke", "black")
-    // .attr("stroke-width", 0.2)
-    // .attr("id", function(d) { return d.id; })
-    // .attr("d", path)
-    // .on("click", country_clicked);
 }
 
 function total_sightings(id, years) {
@@ -96,19 +109,29 @@ function search(nameKey, myArray){
 }
 
 function genMap() {
-    mapSVG = d3.select("#map").append("svg")
+    mapSVG = d3.select("#map").on("touchstart", nozoom)
+    .on("touchmove", nozoom).append("svg")
         .attr("preserveAspectRatio", "xMidYMid")
-        .attr("viewBox", "0 0 " + mapWidth + " " + height)
+        .attr("viewBox", "0 0 " + mapWidth + " " + mapHeight)
         .attr("width", m_width)
-        .attr("height", m_width * height / mapWidth)
+        .attr("height", m_width * mapHeight / mapWidth)
         .attr("border", "solid");
-
+    mapSVG.call(d3.zoom()
+        .scaleExtent([1, 20])
+        .on("zoom", zoomed));
     map = mapSVG.append("g");
-
+    // mapSVG.append("rect")
+    // .attr("width", mapWidth)
+    // .attr("height", mapHeight)
+    // .style("fill", "none")
+    // .style("stroke", "black")
+    // .style("stroke-width", 0.5)
+    // .style("pointer-events", "all");
+    var temp = mapHeight-35;
     g = mapSVG.append("g")
     .attr("class", "key")
-    .attr("transform", "translate(0,40)");
-
+    .attr("transform", "translate(50 ," + temp +")");
+    g.append("rect").attr("height", 300).attr("width", 60).attr("x", -50).attr("y", -275).attr("fill", "white");
     g.selectAll("rect")
       .data(color.range().map(function(d) {
           d = color.invertExtent(d);
@@ -117,24 +140,25 @@ function genMap() {
           return d;
         }))
       .enter().append("rect")
-        .attr("height", 8)
-        .attr("x", function(d) { return x(d[0]); })
-        .attr("width", function(d) { return (x(d[1]) - x(d[0])); })
+        .attr("height", function(d) { return (x(d[1]) - x(d[0])); })
+        .attr("y", function(d) { return -x(d[0]); })
+        .attr("x", -10)
+        .attr("width", 8)
         .attr("fill", function(d) { return color(d[0]); });
 
     g.append("text")
         .attr("class", "caption")
-        .attr("x", x.range()[0])
-        .attr("y", -6)
+        .attr("x", x.range()[0] - 45)
+        .attr("y", 20)
         .attr("fill", "#000")
         .attr("text-anchor", "start")
         .attr("font-weight", "bold")
-        .text("Number of Sightings");
+        .text("# Sightings");
 
-    g.call(d3.axisBottom(x)
+    g.call(d3.axisLeft(yMap)
         .tickSize(12)
         .tickPadding(3)
-        .tickFormat(function(x, i) { return i ? x : x; })
+        .tickFormat(function(yMap, i) { return i ? yMap : yMap; })
         .tickValues(color.domain()))
       .select(".domain")
         .remove();
@@ -153,14 +177,15 @@ function zoom(xyz) {
 function get_xyz(d) {
   var bounds = path.bounds(d);
   var w_scale = (bounds[1][0] - bounds[0][0]) / mapWidth;
-  var h_scale = (bounds[1][1] - bounds[0][1]) / height;
+  var h_scale = (bounds[1][1] - bounds[0][1]) / mapHeight;
   var z = .96 / Math.max(w_scale, h_scale);
   var x = (bounds[1][0] + bounds[0][0]) / 2;
-  var y = (bounds[1][1] + bounds[0][1]) / 2 + (height / z / 6);
+  var y = (bounds[1][1] + bounds[0][1]) / 2 + (mapHeight / z / 6);
   return [x, y, z];
 }
-
+var old_country = ['USA'];
 function country_clicked(d) {
+    if (d3.event.defaultPrevented) { return; }
   map.selectAll(["#states", "#cities"]).remove();
   state = null;
 
@@ -171,20 +196,35 @@ function country_clicked(d) {
   if (d && country !== d) {
     var xyz = get_xyz(d);
     country = d;
-     zoom(xyz);
+     //zoom(xyz);
      countries=[country.id];
      heatmapChart(file_csv,countries,dates);
+     d3.select("#mapid").text(country.id);
+     d3.select("#"+country.id).transition().attr("stroke", "red").attr("stroke-width", 1.5);
+     d3.select("#"+old_country).transition().attr("stroke", "black").attr("stroke-width", 0.2);
+     old_country = country.id;
   } else {
-    var xyz = [mapWidth / 2, height / 1.5, 1];
-    country = null;
-    zoom(xyz);
-    countries=['USA'];
-    heatmapChart(file_csv,countries,dates);
+    //var xyz = [mapWidth / 2, mapHeight / 1.5, 1];
+    //country = null;
+    //zoom(xyz);
+    //countries=['USA'];
+    //heatmapChart(file_csv,countries,dates);
   }
+
+}
+
+function reset() {
+    d3.select("#mapid").text("Nothing yet :)");
+  d3.select("#"+old_country).transition().attr("stroke", "black").attr("stroke-width", 0.2);
+  countries=['USA'];
+  var xyz = [mapWidth / 2, mapHeight / 1.5, 1];
+  country = null;
+  zoom(xyz);
+  heatmapChart(file_csv,countries,dates);
 }
 
 $(window).resize(function() {
   var w = $("#map").width();
   mapSVG.attr("width", w);
-  mapSVG.attr("height", w * height / mapWidth);
+  mapSVG.attr("height", w * mapHeight / mapWidth);
 });
