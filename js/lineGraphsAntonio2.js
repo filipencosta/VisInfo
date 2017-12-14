@@ -1,9 +1,13 @@
-var div = d3.select('body').append('div');
+//NOTA: isto pressupoe q o .html tenha area1, buttons_area, area2
+
+// var div = d3.select('body').append('div');
+var div = d3.select('#buttons_area');
+
 var countrydata=[];
 
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width = (960 - margin.left - margin.right);
+    height = (500 - margin.top - margin.bottom);
 
 //var parseDate = d3.timeParse("%Y-%m-%d");
 var parseDate = d3.timeParse("%Y");
@@ -26,7 +30,7 @@ var line = d3.line()
     .x(function(d) { return x(d.year); })
     .y(function(d) { return y(d.value); });
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#area1").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -35,13 +39,6 @@ var svg = d3.select("body").append("svg")
 var dataFiltered = {}
 var dataNested = {}
 
-// d3.json("datafiles/mock_data2.json", function(error, data) {
-  // data.forEach(function(d) {
-    // d.date = parseDate(d.date);
-    // d.cror = +d.cror;
-    // d.value = 0;//+d.value;
-  // });
-
 d3.csv("datafiles/countrySort.csv", function(error, data) {
    for (var i = 0; i < data.length; i++) {
         countrydata.push({key: data[i].country});
@@ -49,12 +46,13 @@ d3.csv("datafiles/countrySort.csv", function(error, data) {
 });
 
 // INPUT TO lineGraph
-var countries = ['AFG', 'GBR'];
+var countries = ['AFG', 'GBR', 'PRT','ESP','world'];
 var dates =[1960,2014];
-var file_path="datafiles/groupbyCountryYear_addedZeros.csv";
+var file_path="datafiles/groupbyCountryYear_addedZeros.csv"; //#sightings
+// var file_path="datafiles/internet_formatted_addedZeros.csv"; //%internet access
   
-var linegraph = function(countries, dates, file_path) {
-    d3.csv("datafiles/groupbyCountryYear_addedZeros.csv", function(error, data) {
+var linegraph = function(countries, dates, file_path, canvas) {
+    d3.csv(file_path, function(error, data) {
       data.forEach(function(d) {
           d.yearInt = +d.year;
           d.year = parseDate(d.year);
@@ -131,9 +129,9 @@ var linegraph = function(countries, dates, file_path) {
         {
             return d;
         }
-
     })
       
+      console.log(countrydata);
 
       var dataNested = d3.nest()
         .key(function (d) { return d.country })
@@ -142,16 +140,16 @@ var linegraph = function(countries, dates, file_path) {
       // console.log(dataNested);
       
 
-      div.append('select')
-          .attr('id','variableSelect')
-          .on('change',variableChange)
-        .selectAll('option')  
-          .data(countrydata).enter()
-        .append('option')
-          .attr('value',function (d) { return d.key })
-          .text(function (d) { return d.key })
+      // div.append('select')
+          // .attr('id','variableSelect')
+          // .on('change',variableChange)
+        // .selectAll('option')  
+          // .data(countrydata).enter()
+        // .append('option')
+          // .attr('value',function (d) { return d.key })
+          // .text(function (d) { return d.key })
 
-          console.log(dataNested);
+          // console.log(dataNested);
           
       //var dataFiltered = dataNested.filter(function (d) { return d.key===d3.select('#variableSelect').property('value') })
       var dataFiltered = dataNested.filter(function (d) { return d.key==="GBR" })
@@ -183,12 +181,12 @@ var linegraph = function(countries, dates, file_path) {
       y.domain([0, d3.max(maxValues)]);
       
       
-      svg.append("g")
+      canvas.append("g")
           .attr("class", "xAxis")
           .attr("transform", "translate(0," + height + ")")
           .call(xAxis);
 
-      svg.append("g")
+      canvas.append("g")
           .attr("class", "yAxis")
           .call(yAxis)
         .append("text")
@@ -200,36 +198,65 @@ var linegraph = function(countries, dates, file_path) {
 
       for (key in dataNested){
           // console.log(dataNested[key]);
-          svg.append("path")
+          canvas.append("path")
           .datum(dataNested[key].values)
           .attr("class", "line")
           .attr("d", line);
       }
           
           
-      svg.append("path")
+      canvas.append("path")
           .datum(dataFiltered[0].values)
           .attr("class", "line")
           .attr("d", line);
 
-      svg.append("path")
+      canvas.append("path")
           .datum(dataNested.filter(function (d) { return d.key==="AFG" })[0].values)
           .attr("class", "line")
           .attr("d", line);
           
-      function variableChange() {
-        var value = this.value
-        var dataFiltered = dataNested.filter(function (d) { return d.key===value })
-        x.domain(d3.extent(dataFiltered[0].values, function(d) { return d.year; }));
-        y.domain([0, d3.max(dataFiltered[0].values, function(d) { return d.value; })]);
-        //y.domain(d3.extent(dataFiltered[0].values, function(d) { return d.value; }));
-        d3.select('.xAxis').transition().duration(1000).call(xAxis)
-        d3.select('.yAxis').transition().duration(1000).call(yAxis)
-        d3.select('.line').datum(dataFiltered[0].values).attr('d',line)
-        //console.log(dataFiltered);
-         }
+      // function variableChange() {
+          // canvas.selectAll("*").remove();
+        // // var value = this.value
+        // // var dataFiltered = dataNested.filter(function (d) { return d.key===value })
+        // // x.domain(d3.extent(dataFiltered[0].values, function(d) { return d.year; }));
+        // // y.domain([0, d3.max(dataFiltered[0].values, function(d) { return d.value; })]);
+        // // //y.domain(d3.extent(dataFiltered[0].values, function(d) { return d.value; }));
+        // // d3.select('.xAxis').transition().duration(1000).call(xAxis)
+        // // d3.select('.yAxis').transition().duration(1000).call(yAxis)
+        // // d3.select('.line').datum(dataFiltered[0].values).attr('d',line)
+        // // //console.log(dataFiltered);
+         // }
 
     });
 }
 
-linegraph(countries, dates, file_path);
+linegraph(countries, dates, file_path, svg);
+
+var svg2 = d3.select("#area2").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+var file_paths={"GDP":"datafiles/gdp_formatted_addedZeros.csv","unemployment":"datafiles/unemployment_formatted_addedZeros.csv","internet access":"datafiles/internet_formatted_addedZeros.csv","sci-fi movie releases":"datafiles/MoviesGroupByYear_addedZeros.csv"};
+// var file_path="datafiles/internet_formatted_addedZeros.csv"; //%internet access
+linegraph(countries, dates, file_paths["GDP"],svg2);
+
+social_variables=["GDP","unemployment","internet access","sci-fi movie releases"];
+console.log(social_variables);
+
+div.append('select')
+          .attr('id','variableSelect')
+          .on('change',variableChange)
+        .selectAll('option')  
+          .data(social_variables).enter()
+        .append('option')
+          .attr('value',function (d) { return d })
+          .text(function (d) { return d })
+
+function variableChange() {
+          svg2.selectAll("*").remove();//clean previous graph
+          var value = this.value //get social variable chosen by user
+          linegraph(countries, dates, file_paths[value],svg2);
+         }
