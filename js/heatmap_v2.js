@@ -10,8 +10,8 @@ width = 750 - margin.left - margin.right,
 height = 370 - margin.top - margin.bottom,
 gridSize = Math.floor(width / 24),
 legendElementWidth = gridSize*2,
-buckets = 9,
-colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"], // alternatively colorbrewer.YlGnBu[9]
+buckets = 4,
+colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb"]//,"#41b6c4","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"], // alternatively colorbrewer.YlGnBu[9]
 days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
 times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a", "12a", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p", "12p"];
 var svg = d3.select("#heatmap").append("svg")
@@ -106,7 +106,7 @@ var heatmapChart = function(data,country,year){
             });
             ////////DATAGROUPER DECLARATION - END
             filteredData = DataGrouper.sum(filteredData,["day", "hour"]);
-            var finalfilteredData=filteredData;
+            var finalfilteredData=JSON.parse(JSON.stringify(filteredData));
             var hoursaux=[24,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
             var daysaux=[1,2,3,4,5,6,7];
             for(var i in hoursaux){
@@ -121,13 +121,30 @@ var heatmapChart = function(data,country,year){
                 }
                 daysaux=[1,2,3,4,5,6,7];
             }
+            console.log(finalfilteredData);
+            var domain=[];
+            for(var i in finalfilteredData){
+                domain.push(finalfilteredData[i].value);
+            }
+            var maxvalue=d3.max(finalfilteredData, function (d) { return d.value; });
+            if(maxvalue<=buckets){
+                buckets=1;
+                colors=colors = ["#ffffd9"];
+            }
+            else{
+                buckets = 4;
+                colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb"];
+            }
+            console.log(domain);
             var colorScale = d3.scaleQuantile()
             .domain([0, buckets - 1, d3.max(finalfilteredData, function (d) { return d.value; })])
+            //.domain(domain)
             .range(colors);
+            $(".hour").remove();
             var cards = svg.selectAll(".hour")
-            .data(filteredData, function(d) {return d.day+':'+d.hour;});
-            cards.append("title");
-            cards.enter().append("rect")
+            .data(finalfilteredData, function(d) {return d.day+':'+d.hour;});
+            
+            cards.data(finalfilteredData, function(d) {return d.day+':'+d.hour;}).enter().append("rect")
             .attr("x", function(d) { return (d.hour-1) * gridSize; })
             .attr("y", function(d) { return (d.day - 1) * gridSize; })
             .attr("rx", 4)
@@ -135,24 +152,26 @@ var heatmapChart = function(data,country,year){
             .attr("class", "hour")
             .attr("width", gridSize)
             .attr("height", gridSize)
-            .style("fill", colors[0]);
-            cards.transition().duration(750).style("fill", function(d) { return colorScale(d.value); });
-            cards.select("title").text(function(d) { return d.value; });
-
-            cards.exit().remove();
-            //$(".legend").empty();
-
+            .style("fill", function(d) { return colorScale(d.value); });
+            //cards.transition().duration(750).style("fill", function(d) { return colorScale(d.value); });
+           var test= svg.selectAll('.hour').data(finalfilteredData);
+            test.append("title").text(function(d) { return d.value; });
+            //cards.exit().remove();
+             $(".legend").remove();
             var legend = svg.selectAll(".legend")
             .data([0].concat(colorScale.quantiles()), function(d) { return d; });
             legend.enter().append("g")
             .attr("class", "legend");
-            legend.append("rect")
+           
+            var test= svg.selectAll('.legend').data([0].concat(colorScale.quantiles()), function(d) { return d; });
+            test.append('rect')
             .attr("x", function(d, i) { return legendElementWidth * i; })
             .attr("y", height)
             .attr("width", legendElementWidth)
             .attr("height", gridSize / 2)
+            .attr("class", "legend")
             .style("fill", function(d, i) { return colors[i]; });
-            legend.append("text")
+            test.append("text")
             .attr("class", "mono")
             .text(function(d) { return "≥ " + Math.round(d); })
             .attr("x", function(d, i) { return legendElementWidth * i; })
