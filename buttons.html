@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<meta charset='utf-8'>
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="js/underscore.js" charset="utf-8"></script>
+    <link rel='stylesheet' href='css/lineGraphAntonio.css'>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+  </head>
+  <body>
+  	<select class="js-example-basic-single" name="movie" id="movie"></select>
+  	<select class="js-example-basic-multiple" name="states[]" multiple="multiple" id='countries' style="width: 50%""></select>
+		<script>
+		$(document).ready(function() {
+    		$('.js-example-basic-single').select2({
+    			allowClear: true,
+    			placeholder: 'Select Movie'
+    		});
+    		 $('.js-example-basic-multiple').select2({
+  			maximumSelectionLength: 5,
+  			allowClear: true,
+  			 placeholder: 'Select Country'
+			});
+    		 $('#movie').val(null).trigger('change');
+		});
+
+		var div = d3.select('#movie');
+		d3.csv("datafiles/MovieFinal.csv", function(data) {
+			// for (var i = 0; i < data.length; i++) {
+			//         moviedata.push(data[i].title,year+'/'+data[i].Year});
+			//     }
+		
+          //.on('change',variableChange)
+        div.selectAll('option')  
+          .data(data).enter()
+        .append('option')
+          .attr('value',function (d) { return d.Year})
+          .text(function (d) { return d.title +' - '+ d.Year})
+			
+		});
+
+		var div2 = d3.select('#countries');
+		d3.csv("datafiles/countrySort.csv", function(data) {
+			// for (var i = 0; i < data.length; i++) {
+			//         moviedata.push(data[i].title,year+'/'+data[i].Year});
+			//     }
+		
+          //.on('change',variableChange)
+        div2.selectAll('option')  
+          .data(data).enter()
+        .append('option')
+          .attr('value',function (d) { return d.country})
+          .text(function (d) { return d.country })
+			
+		});
+		// $(document).ready(function() {
+		// 	$('#countries').val(['PRT','USA']); // Select the option with a value of '1'
+		// 	$('#countries').trigger('change'); // Notify any JS components that the value changed
+		// });
+		
+		</script>
+  </body>
+</html>
