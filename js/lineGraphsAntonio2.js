@@ -5,9 +5,9 @@ var div = d3.select('#buttons_area');
 
 var countrydata=[];
 
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = (960 - margin.left - margin.right);
-    height = (500 - margin.top - margin.bottom);
+var margin = {top: 20/2, right: 20/2, bottom: 30/2, left: 50/2},
+    width = (960 - margin.left - margin.right)/2;
+    height = (500 - margin.top - margin.bottom)/2;
 
 //var parseDate = d3.timeParse("%Y-%m-%d");
 var parseDate = d3.timeParse("%Y");
@@ -38,6 +38,8 @@ var svg = d3.select("#area1").append("svg")
 
 var dataFiltered = {}
 var dataNested = {}
+var color = ["#48A36D",  "#56AE7C",  "#64B98C", "#72C39B", "#80CEAA", "#80CCB3", "#7FC9BD", "#7FC7C6", "#7EC4CF", "#7FBBCF", "#7FB1CF", "#80A8CE", "#809ECE", "#8897CE", "#8F90CD", "#9788CD", "#9E81CC", "#AA81C5", "#B681BE", "#C280B7", "#CE80B0", "#D3779F", "#D76D8F", "#DC647E", "#E05A6D", "#E16167", "#E26962", "#E2705C", "#E37756", "#E38457", "#E39158", "#E29D58", "#E2AA59", "#E0B15B", "#DFB95C", "#DDC05E", "#DBC75F", "#E3CF6D", "#EAD67C", "#F2DE8A"]; 
+console.log(color);
 
 d3.csv("datafiles/countrySort.csv", function(error, data) {
    for (var i = 0; i < data.length; i++) {
@@ -48,8 +50,9 @@ d3.csv("datafiles/countrySort.csv", function(error, data) {
 // INPUT TO lineGraph
 var countries = ['AFG', 'GBR', 'PRT','ESP','world'];
 var dates =[1960,2014];
-var file_path="datafiles/groupbyCountryYear_addedZeros.csv"; //#sightings
+var sightings_file_path="datafiles/groupbyCountryYear_addedZeros.csv"; //#sightings
 // var file_path="datafiles/internet_formatted_addedZeros.csv"; //%internet access
+var x_min,x_max;
   
 var linegraph = function(countries, dates, file_path, canvas) {
     d3.csv(file_path, function(error, data) {
@@ -113,12 +116,20 @@ var linegraph = function(countries, dates, file_path, canvas) {
       // console.log(countries);
       // console.log(dates);
       // console.log(data);
-      
+      console.log("x_max: ",x_max);
       data = data.filter(function(d)
     {
-        if(( countries.includes(d["country"]))  && (d["yearInt"] >= dates[0]) && (d["yearInt"] <= dates[1]))
-        {
-            return d;
+        if (file_path==sightings_file_path){
+            if(( countries.includes(d["country"]))  && (d["yearInt"] >= dates[0]) && (d["yearInt"] <= dates[1]))
+            {
+                return d;
+            }
+        }
+        else{//max and min year were previously computed
+            if(( countries.includes(d["country"]))  && (d["year"] >= x_min) && (d["year"] <= x_max))
+            {
+                return d;
+            }
         }
 
     })
@@ -177,6 +188,11 @@ var linegraph = function(countries, dates, file_path, canvas) {
           minYears.push(d3.min(dataNested[key].values, function(d){return d.year;}));
       }
       
+      if (file_path==sightings_file_path){
+          x_min=d3.min(minYears);
+          x_max=d3.max(maxYears);
+      }
+            
       x.domain([d3.min(minYears),d3.max(maxYears)]);
       y.domain([0, d3.max(maxValues)]);
       
@@ -196,24 +212,27 @@ var linegraph = function(countries, dates, file_path, canvas) {
           .style("text-anchor", "end")
           .text("Cumulative Return");
 
+      i=0;
       for (key in dataNested){
           // console.log(dataNested[key]);
           canvas.append("path")
           .datum(dataNested[key].values)
           .attr("class", "line")
-          .attr("d", line);
+          .attr("d", line)
+          .style("stroke",color[i]);
+          i+=7;//martelada so' pq o array de cores muda gradualmente de cor, acho. Com i++ era tudo verde
       }
           
           
-      canvas.append("path")
-          .datum(dataFiltered[0].values)
-          .attr("class", "line")
-          .attr("d", line);
+      // canvas.append("path")
+          // .datum(dataFiltered[0].values)
+          // .attr("class", "line")
+          // .attr("d", line);
 
-      canvas.append("path")
-          .datum(dataNested.filter(function (d) { return d.key==="AFG" })[0].values)
-          .attr("class", "line")
-          .attr("d", line);
+      // canvas.append("path")
+          // .datum(dataNested.filter(function (d) { return d.key==="AFG" })[0].values)
+          // .attr("class", "line")
+          // .attr("d", line);
           
       // function variableChange() {
           // canvas.selectAll("*").remove();
@@ -231,7 +250,7 @@ var linegraph = function(countries, dates, file_path, canvas) {
     });
 }
 
-linegraph(countries, dates, file_path, svg);
+linegraph(countries, dates, sightings_file_path, svg);
 
 var svg2 = d3.select("#area2").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -256,7 +275,8 @@ div.append('select')
           .text(function (d) { return d })
 
 function variableChange() {
-          svg2.selectAll("*").remove();//clean previous graph
+          svg2.selectAll("*").remove();//clean previous plot
           var value = this.value //get social variable chosen by user
-          linegraph(countries, dates, file_paths[value],svg2);
+          linegraph(countries, dates, file_paths[value],svg2);//draw new plot
          }
+         
