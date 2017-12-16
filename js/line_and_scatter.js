@@ -1,4 +1,3 @@
-//NOTA: isto pressupoe q o .html tenha area1, buttons_area, area2
 
 // var div = d3.select('body').append('div');
 var div = d3.select('#buttons_area');
