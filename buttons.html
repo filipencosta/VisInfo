@@ -24,8 +24,11 @@
   			 placeholder: 'Select Country'
 			});
     		 $('#movie').val(null).trigger('change');
+			
 		});
-
+		// $.not('#movie').click( function(){
+		// 	    $('#movie').select2('close');
+		// 	});
 		var div = d3.select('#movie');
 		d3.csv("datafiles/MovieFinal.csv", function(data) {
 			// for (var i = 0; i < data.length; i++) {
@@ -53,6 +56,11 @@
         .append('option')
           .attr('value',function (d) { return d.country})
           .text(function (d) { return d.country })
+			
+		});
+		$(document).ready(function() {
+
+		 $('#movie').val(null).trigger('change');
 			
 		});
 		// $(document).ready(function() {
