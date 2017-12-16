@@ -10,11 +10,12 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
   </head>
   <body>
-  	<select class="js-example-basic-single" name="movie" id="movie" style="width: 30%"></select>
+  	<select class="js-example-basic-multiple-2" name="movie" multiple="multiple" id="movie" style="width: 30%"></select>
   	<select class="js-example-basic-multiple" name="states[]" multiple="multiple" id='countries' style="width: 30%"></select>
 		<script>
 		$(document).ready(function() {
-    		$('.js-example-basic-single').select2({
+    		$('.js-example-basic-multiple-2').select2({
+    			maximumSelectionLength: 1,
     			allowClear: true,
     			placeholder: {
 					id: "-1",
@@ -66,16 +67,20 @@
 		
 		$(document).click(function (e) {
 		    e.stopPropagation();
-		    console.log($(e.target).attr('class'));
+		    console.log($(e.target)[0]);
+		     console.log($('*')[0]);
 		    //check if the clicked area is dropDown or not
-		  	
-		    if ((e.target.id != 'select2-movie-container')&&($(e.target).attr('class')!='select2-selection__arrow')) {
-		        $('#movie').select2('close');
+		  	if($(e.target)[0]==$('*')[0]){
+		  		$('#movie').select2('close');
+		  		$('#countries').select2('close');
+		  	}
+		    // if ((e.target.id != 'select2-movie-container')&&($(e.target).attr('class')!='select2-selection__arrow')&&($(e.target).attr('role')!='presentation')) {
+		    //     $('#movie').select2('close');
 		        
-		    }
-		   	if(((typeof $(e.target).attr('class'))=='undefined')){
-		    		$('#countries').select2('close');
-		    	}
+		    // }
+		   	// if(((typeof $(e.target).attr('class'))=='undefined')){
+		    // 		$('#countries').select2('close');
+		    // 	}
 		});
 		
 		
