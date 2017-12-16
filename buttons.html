@@ -23,12 +23,7 @@
   			allowClear: true,
   			 placeholder: 'Select Country'
 			});
-    		 $('#movie').val(null).trigger('change');
-			
 		});
-		// $.not('#movie').click( function(){
-		// 	    $('#movie').select2('close');
-		// 	});
 		var div = d3.select('#movie');
 		d3.csv("datafiles/MovieFinal.csv", function(data) {
 			// for (var i = 0; i < data.length; i++) {
@@ -63,6 +58,22 @@
 		 $('#movie').val(null).trigger('change');
 			
 		});
+		
+		$(document).click(function (e) {
+		    e.stopPropagation();
+		    //check if the clicked area is dropDown or not
+		  	
+		    if ((e.target.id != 'select2-movie-container')&&($(e.target).attr('class')!='select2-selection__arrow')) {
+		        $('#movie').select2('close');
+		        
+		    }
+		   	if(((typeof $(e.target).attr('class'))=='undefined')){
+		    		$('#countries').select2('close');
+		    	}
+		});
+		
+		
+
 		// $(document).ready(function() {
 		// 	$('#countries').val(['PRT','USA']); // Select the option with a value of '1'
 		// 	$('#countries').trigger('change'); // Notify any JS components that the value changed
