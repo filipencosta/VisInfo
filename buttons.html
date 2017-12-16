@@ -16,13 +16,18 @@
 		$(document).ready(function() {
     		$('.js-example-basic-single').select2({
     			allowClear: true,
-    			placeholder: 'Select Movie'
+    			placeholder: {
+					id: "-1",
+					text: "Select Movie",
+					selected:'selected'
+				}
     		});
     		 $('.js-example-basic-multiple').select2({
   			maximumSelectionLength: 5,
   			allowClear: true,
   			 placeholder: 'Select Country'
 			});
+    		  $('#movie').val(null).trigger('change');
 		});
 		var div = d3.select('#movie');
 		d3.csv("datafiles/MovieFinal.csv", function(data) {
@@ -61,6 +66,7 @@
 		
 		$(document).click(function (e) {
 		    e.stopPropagation();
+		    console.log($(e.target).attr('class'));
 		    //check if the clicked area is dropDown or not
 		  	
 		    if ((e.target.id != 'select2-movie-container')&&($(e.target).attr('class')!='select2-selection__arrow')) {
