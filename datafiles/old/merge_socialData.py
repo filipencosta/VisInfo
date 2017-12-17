@@ -1,5 +1,5 @@
 file_new = open('allInfo_byYear.csv', 'w')
-file_new.write('"year","country","sightings","gdp","unemployment", "internet","scifi"\n')
+file_new.write('"year","country","sightings","gdp","unemployment","internet","scifi"\n')
 
 
 file_sightings = open('groupbyCountryYear_addedZeros.csv', 'r')

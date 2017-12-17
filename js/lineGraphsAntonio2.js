@@ -26,9 +26,10 @@ var yAxis = d3.axisLeft()
     .scale(y);
     ;//.tickFormat(formatPct);
 
+var metric;
 var line = d3.line()
     .x(function(d) { return x(d.year); })
-    .y(function(d) { return y(d.value); });
+    .y(function(d) { return y(d[metric]); });
 
 var svg = d3.select("#area1").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -39,7 +40,7 @@ var svg = d3.select("#area1").append("svg")
 var dataFiltered = {}
 var dataNested = {}
 var color = ["#48A36D",  "#56AE7C",  "#64B98C", "#72C39B", "#80CEAA", "#80CCB3", "#7FC9BD", "#7FC7C6", "#7EC4CF", "#7FBBCF", "#7FB1CF", "#80A8CE", "#809ECE", "#8897CE", "#8F90CD", "#9788CD", "#9E81CC", "#AA81C5", "#B681BE", "#C280B7", "#CE80B0", "#D3779F", "#D76D8F", "#DC647E", "#E05A6D", "#E16167", "#E26962", "#E2705C", "#E37756", "#E38457", "#E39158", "#E29D58", "#E2AA59", "#E0B15B", "#DFB95C", "#DDC05E", "#DBC75F", "#E3CF6D", "#EAD67C", "#F2DE8A"]; 
-console.log(color);
+// console.log(color);
 
 d3.csv("datafiles/countrySort.csv", function(error, data) {
    for (var i = 0; i < data.length; i++) {
@@ -53,85 +54,47 @@ countries.push('world');
 var dates =[1960,2014];
 var sightings_file_path="datafiles/groupbyCountryYear_addedZeros.csv"; //#sightings
 // var file_path="datafiles/internet_formatted_addedZeros.csv"; //%internet access
+var file_path="datafiles/allInfo_byYear.csv"; //#sightings
+
 var x_min,x_max;
   
-var linegraph = function(countries, dates, file_path, canvas) {
+var linegraph = function(countries, dates, file_path, canvas, my_metric) {
     d3.csv(file_path, function(error, data) {
       data.forEach(function(d) {
           d.yearInt = +d.year;
           d.year = parseDate(d.year);
-          //day : +data.day;
-          //hour : +data.hour;
-          d.value = +d.value;
+          d.sightings = +d.sightings;
+          d.gdp = +d.gdp;
+          d.unemployment = +d.unemployment;
+          d.internet = +d.internet;
+          d.scifi = +d.scifi;
       });
       
-      ////////DATAGROUPER DECLARATION - BEGIN
-        var DataGrouper = (function() {
-        var has = function(obj, target) {
-            return _.any(obj, function(value) {
-                return _.isEqual(value, target);
-            });
-        };
 
-        var keys = function(data, names) {
-            return _.reduce(data, function(memo, item) {
-                var key = _.pick(item, names);
-                if (!has(memo, key)) {
-                    memo.push(key);
-                }
-                return memo;
-            }, []);
-        };
-
-        var group = function(data, names) {
-            var stems = keys(data, names);
-            return _.map(stems, function(stem) {
-                return {
-                    key: stem,
-                    vals:_.map(_.where(data, stem), function(item) {
-                        return _.omit(item, names);
-                    })
-                };
-            });
-        };
-
-        group.register = function(name, converter) {
-            return group[name] = function(data, names) {
-                return _.map(group(data, names), converter);
-            };
-        };
-
-        return group;
-    }());
-    DataGrouper.register("sum", function(item) {
-        return _.extend({}, item.key, {value: _.reduce(item.vals, function(memo, node) {
-            return memo + Number(node.value);
-        }, 0)});
-    });
-    ////////DATAGROUPER DECLARATION - END
-        
-        //JA ESTA NO PREPROCESSAMENTO
-        //data = DataGrouper.sum(data,["year","country"]);
-      
       
       // console.log(countries);
       // console.log(dates);
-      // console.log(data);
-      console.log("x_max: ",x_max);
+      // console.log(data[0][my_metric]);
+      // console.log("x_max: ",x_max);
       data = data.filter(function(d)
     {
-        if (file_path==sightings_file_path){
-            if(( countries.includes(d["country"]))  && (d["yearInt"] >= dates[0]) && (d["yearInt"] <= dates[1]))
-            {
-                return d;
-            }
+        if(( countries.includes(d["country"]))  && (d["yearInt"] >= dates[0]) && (d["yearInt"] <= dates[1]))
+        {
+            return d;
         }
-        else{//max and min year were previously computed
-            if(( countries.includes(d["country"]))  && (d["year"] >= x_min) && (d["year"] <= x_max))
-            {
-                return d;
-            }
-        }
+        
+        // if (file_path==sightings_file_path){
+            // if(( countries.includes(d["country"]))  && (d["yearInt"] >= dates[0]) && (d["yearInt"] <= dates[1]))
+            // {
+                // return d;
+            // }
+        // }
+        // else{//max and min year were previously computed
+            // if(( countries.includes(d["country"]))  && (d["year"] >= x_min) && (d["year"] <= x_max))
+            // {
+                // return d;
+            // }
+        // }
 
     })
     
@@ -143,7 +106,7 @@ var linegraph = function(countries, dates, file_path, canvas) {
         }
     })
       
-      console.log(countrydata);
+      // console.log(countrydata);
 
       var dataNested = d3.nest()
         .key(function (d) { return d.country })
@@ -164,9 +127,9 @@ var linegraph = function(countries, dates, file_path, canvas) {
           // console.log(dataNested);
           
       //var dataFiltered = dataNested.filter(function (d) { return d.key===d3.select('#variableSelect').property('value') })
-      var dataFiltered = dataNested.filter(function (d) { return d.key==="GBR" })
+      // var dataFiltered = dataNested.filter(function (d) { return d.key==="GBR" })
 
-      dataFiltered.sort(function(a,b){return a.year - b.year;});
+      // dataFiltered.sort(function(a,b){return a.year - b.year;});
       
       //console.log(dataFiltered);
       //console.log(x);
@@ -184,7 +147,7 @@ var linegraph = function(countries, dates, file_path, canvas) {
       maxYears=[];
       minYears=[];
       for (key in dataNested){
-          maxValues.push(d3.max(dataNested[key].values, function(d){return d.value;}));
+          maxValues.push(d3.max(dataNested[key].values, function(d){return d[my_metric];}));
           maxYears.push(d3.max(dataNested[key].values, function(d){return d.year;}));
           minYears.push(d3.min(dataNested[key].values, function(d){return d.year;}));
       }
@@ -214,6 +177,7 @@ var linegraph = function(countries, dates, file_path, canvas) {
           .text("Cumulative Return");
 
       i=0;
+      metric=my_metric;
       for (key in dataNested){
           // console.log(dataNested[key]);
           canvas.append("path")
@@ -251,7 +215,7 @@ var linegraph = function(countries, dates, file_path, canvas) {
     });
 }
 
-linegraph(countries, dates, sightings_file_path, svg);
+linegraph(countries, dates, file_path, svg, "sightings");
 
 var svg2 = d3.select("#area2").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -259,12 +223,16 @@ var svg2 = d3.select("#area2").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
-var file_paths={"GDP":"datafiles/gdp_formatted_addedZeros.csv","unemployment":"datafiles/unemployment_formatted_addedZeros.csv","internet access":"datafiles/internet_formatted_addedZeros.csv","sci-fi movie releases":"datafiles/MoviesGroupByYear_addedZeros.csv"};
+
+var metrics={"GDP":"gdp","unemployment":"unemployment","internet access":"internet","sci-fi movie releases":"scifi"};
 // var file_path="datafiles/internet_formatted_addedZeros.csv"; //%internet access
-linegraph(countries, dates, file_paths["GDP"],svg2);
+// linegraph(countries, dates, file_paths["GDP"],svg2);
+
+linegraph(countries, dates, file_path,svg2,"gdp");
+
 
 social_variables=["GDP","unemployment","internet access","sci-fi movie releases"];
-console.log(social_variables);
+// console.log(social_variables);
 
 div.append('select')
           .attr('id','variableSelect')
@@ -278,6 +246,6 @@ div.append('select')
 function variableChange() {
           svg2.selectAll("*").remove();//clean previous plot
           var value = this.value //get social variable chosen by user
-          linegraph(countries, dates, file_paths[value],svg2);//draw new plot
+          linegraph(countries, dates, file_path,svg2,metrics[value]);//draw new plot
          }
          
