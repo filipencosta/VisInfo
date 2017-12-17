@@ -1,24 +1,111 @@
+var countries = ['AFG', 'GBR', 'PRT','ESP'];
+countries.push('world');
+var dates =[1960,2014];
+var metric="internet";
 var dataset;
 
-d3.csv("datafiles/groupbyCountryYear.csv", function (data) {
+d3.csv("datafiles/allInfo_byYear.csv", function (data) {
     data.forEach(function(d) {
           d.year = +d.year;
           // d.year = parseDate(d.year);
-          //day : +data.day;
-          //hour : +data.hour;
-          d.value = +d.value;
+          d.sightings = +d.sightings;
+          d.gdp = +d.gdp;
+          d.unemployment = +d.unemployment;
+          d.internet = +d.internet;
+          d.scifi = +d.scifi;
+          // d.country = d.country;
       });
-    dataset = data;  
-        gen_scatterplot();
+    
+    // data = data.filter(function(d)
+    // {
+        // if(( countries.includes(d["country"]))  && (d["year"] >= dates[0]) && (d["year"] <= dates[1]) && d["country"]!="world")
+        // {
+            // return d;
+        // }
+    // })
+    data = data.filter(function(d)
+    {
+        if(d["country"]!="world")
+        {
+            return d;
+        }
+    })
+    
+          ////////DATAGROUPER DECLARATION - BEGIN
+        var DataGrouper = (function() {
+        var has = function(obj, target) {
+            return _.any(obj, function(value) {
+                return _.isEqual(value, target);
+            });
+        };
+
+        var keys = function(data, names) {
+            return _.reduce(data, function(memo, item) {
+                var key = _.pick(item, names);
+                if (!has(memo, key)) {
+                    memo.push(key);
+                }
+                return memo;
+            }, []);
+        };
+
+        var group = function(data, names) {
+            var stems = keys(data, names);
+            return _.map(stems, function(stem) {
+                return {
+                    key: stem,
+                    vals:_.map(_.where(data, stem), function(item) {
+                        return _.omit(item, names);
+                    })
+                };
+            });
+        };
+
+        group.register = function(name, converter) {
+            return group[name] = function(data, names) {
+                return _.map(group(data, names), converter);
+            };
+        };
+
+        return group;
+    }());
+    DataGrouper.register("sum", function(item) {
+        return _.extend({}, item.key,
+        {sightings: _.reduce(item.vals, function(memo, node) {
+            return memo + Number(node.sightings);}, 0)},
+        {gdp: _.reduce(item.vals, function(memo, node) {
+            return memo + Number(node.gdp);}, 0)}, 
+        {unemployment: _.reduce(item.vals, function(memo, node) {
+            return memo + Number(node.unemployment);}, 0)},
+        {internet: _.reduce(item.vals, function(memo, node) {
+            return memo + Number(node.internet);}, 0)},
+        {scifi: _.reduce(item.vals, function(memo, node) {
+            return memo + Number(node.scifi);}, 0)}
+        );
+    });
+    ////////DATAGROUPER DECLARATION - END
+        
+    console.log(data);
+        
+    dataset = DataGrouper.sum(data,["country"]);
+    dataset.forEach(function(d){
+        if( countries.includes(d["country"])){d.highlight=true;}
+        else{d.highlight=false;}
+    });
+
+
+
+    console.log(dataset);
+    gen_scatterplot(metric);
 });
 
 
-function gen_scatterplot(){
+function gen_scatterplot(metric){
         
     var data = dataset;
-
+    
     var margin = { top: 20, right: 20, bottom: 30, left: 30 };
-    width = 900 - margin.left - margin.right,
+    width = 600 - margin.left - margin.right,
     height = 480 - margin.top - margin.bottom;
 
     var tooltip = d3.select("#scatterplot").append("div")
@@ -52,13 +139,19 @@ function gen_scatterplot(){
         .attr("height", height )
         .attr("x", 0) 
         .attr("y", 0); 
+        
+    // var tip = d3.tip()
+      // .attr("class", "d3-tip")
+      // .offset([-10, 0])
+      // .html(function(d) {
+        // return sightings + ": " + d[sightings] + "<br>" + metric + ": " + d[metric];
+      // });
 
         
-        
-    var xExtent = d3.extent(data, function (d) { return d.year; });
-    var yExtent = d3.extent(data, function (d) { return d.value; });
-    x.domain(d3.extent(data, function (d) { return d.year; })).nice();
-    y.domain(d3.extent(data, function (d) { return d.value; })).nice();
+    var xExtent = d3.extent(data, function (d) { return d.sightings; });
+    var yExtent = d3.extent(data, function (d) { return d[metric]; });
+    x.domain(d3.extent(data, function (d) { return d.sightings; })).nice();
+    y.domain(d3.extent(data, function (d) { return d[metric]; })).nice();
 
     var scatter = svg.append("g")
          .attr("id", "scatterplot")
@@ -69,10 +162,13 @@ function gen_scatterplot(){
       .enter().append("circle")
         .attr("class", "dot")
         .attr("r", 4)
-        .attr("cx", function (d) { return x(d.year); })
-        .attr("cy", function (d) { return y(d.value); })
+        .attr("cx", function (d) { return x(d.sightings); })
+        .attr("cy", function (d) { return y(d[metric]); })
         .attr("opacity", 0.5)
-        .style("fill", "#4292c6");
+        // .style("fill", "#4292c6");
+        .style("fill", function(d) {if (d.highlight){return "#FF0000"} else{return "#D3D3D3"}});
+        // .on('mouseover', tip.show)
+        // .on('mouseout', tip.hide);
 
     // x axis
     svg.append("g")
@@ -85,7 +181,7 @@ function gen_scatterplot(){
      .style("text-anchor", "end")
         .attr("x", width)
         .attr("y", height - 8)
-     .text("X Label");
+     .text("sightings");
 
     // y axis
     svg.append("g")
@@ -98,7 +194,7 @@ function gen_scatterplot(){
         .attr("y", 6)
         .attr("dy", "1em")
         .style("text-anchor", "end")
-        .text("Y Label");
+        .text(metric);
 
     scatter.append("g")
         .attr("class", "brush")
@@ -109,8 +205,8 @@ function gen_scatterplot(){
         var s = d3.event.selection;
         if (!s) {
             if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-            x.domain(d3.extent(data, function (d) { return d.year; })).nice();
-            y.domain(d3.extent(data, function (d) { return d.value; })).nice();
+            x.domain(d3.extent(data, function (d) { return d.sightings; })).nice();
+            y.domain(d3.extent(data, function (d) { return d[metric]; })).nice();
         } else {
             
             x.domain([s[0][0], s[1][0]].map(x.invert, x));
@@ -130,8 +226,8 @@ function gen_scatterplot(){
         svg.select("#axis--x").transition(t).call(xAxis);
         svg.select("#axis--y").transition(t).call(yAxis);
         scatter.selectAll("circle").transition(t)
-        .attr("cx", function (d) { return x(d.year); })
-        .attr("cy", function (d) { return y(d.value); });
+        .attr("cx", function (d) { return x(d.sightings); })
+        .attr("cy", function (d) { return y(d[metric]); });
     }
 
 }
