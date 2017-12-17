@@ -3,14 +3,19 @@ var topo_us;
 
 var mapSVG, map;
 var m_width = 1000,
-    mapWidth = 938,
+    mapWidth = 1000,
     mapHeight = 600,
     country,
     state;
 
 var projection = d3.geoMercator()
     .scale(150)
-    .translate([mapWidth / 2, mapHeight / 1.5]);
+    .translate([mapWidth / 2, mapHeight / 1.45]);
+var UFOimages;
+
+var mapZOOM = d3.zoom()
+    .scaleExtent([1, 12])
+    .on("zoom", zoomed);
 
 var path = d3.geoPath()
     .projection(projection);
@@ -48,9 +53,10 @@ var yMap = d3.scaleThreshold()
 d3.queue()
 	.defer(d3.json, '/datafiles/world_map_v2.json')
 	.defer(d3.json, '/datafiles/number_sightings.json')
+    .defer(d3.csv, '/datafiles/ufo.csv')
 	.await(ready_map);
 
-function ready_map(error, us, sightings) {
+function ready_map(error, us, sightings, ufos) {
     number_sightings = sightings;
     topo_us = us;
     genMap();
@@ -67,10 +73,33 @@ function ready_map(error, us, sightings) {
     on("click", country_clicked);
 
     d3.select("#reset").on("click", reset);
+    ready_csv(ufos);
+}
+
+function ready_csv(ufos) {
+    var coor;
+    ufos = ufos.slice(0, 1000);
+    UFOimages.selectAll("image")
+        .data(ufos).enter()
+        .append("image")
+        .attr("year", function (d) { return d.Year; })
+        .attr("x", function (d) { coor = projection([d.longitude, d.latitude]); return coor[0]; })
+        .attr("y", function (d) { coor = projection([d.longitude, d.latitude]); return coor[1]; })
+        .attr("height", "3px")
+        .attr("width", "3px")
+        .attr("xlink:href", "images/ufo2.png");
 }
 
 function zoomed() {
+    var zoomlevel = 3;
   map.attr("transform", d3.event.transform);
+  UFOimages.attr("transform", d3.event.transform);
+  if (d3.event.transform.k < zoomlevel) {
+      UFOimages.transition().duration(750).attr("hidden", "True");
+  }
+  if (d3.event.transform.k >= zoomlevel) {
+      UFOimages.transition().duration(750).attr("hidden", null);
+  }
 }
 
 function nozoom() {
@@ -79,14 +108,14 @@ function nozoom() {
 
 function updateMap() {
     var update = map.transition();
-    update
-    .selectAll("path")
+    update.selectAll("path")
     .duration(750)
     .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); });
+
+    UFOimages.selectAll("image").attr("hidden", function(d) {if(parseInt(d.Year) >= dates[0] && parseInt(d.Year) <= dates[1]) {return null;} else {return "True";} })
 }
 
 function total_sightings(id, years) {
-    console.log(id);
     var country = search(id, number_sightings);
     var number = 0;
     if (country) {
@@ -97,7 +126,7 @@ function total_sightings(id, years) {
         }
     }
 
-    return number
+    return number;
 }
 
 function search(nameKey, myArray){
@@ -116,18 +145,10 @@ function genMap() {
         .attr("width", m_width)
         .attr("height", m_width * mapHeight / mapWidth)
         .attr("border", "solid");
-    mapSVG.call(d3.zoom()
-        .scaleExtent([1, 20])
-        .on("zoom", zoomed));
+    mapSVG.call(mapZOOM);
     map = mapSVG.append("g");
-    // mapSVG.append("rect")
-    // .attr("width", mapWidth)
-    // .attr("height", mapHeight)
-    // .style("fill", "none")
-    // .style("stroke", "black")
-    // .style("stroke-width", 0.5)
-    // .style("pointer-events", "all");
     var temp = mapHeight-35;
+    UFOimages = mapSVG.append("g").attr("hidden", "True");
     g = mapSVG.append("g")
     .attr("class", "key")
     .attr("transform", "translate(50 ," + temp +")");
@@ -217,9 +238,10 @@ function reset() {
     d3.select("#mapid").text("Nothing yet :)");
   d3.select("#"+old_country).transition().attr("stroke", "black").attr("stroke-width", 0.2);
   countries=['USA'];
-  var xyz = [mapWidth / 2, mapHeight / 1.5, 1];
+  var xyz = [mapWidth / 2, mapHeight / 1.45, 1];
   country = null;
   zoom(xyz);
+  mapSVG.selectAll("circle").transition().duration(750).attr("transform", null);
   heatmapChart(file_csv,countries,dates);
 }
 
