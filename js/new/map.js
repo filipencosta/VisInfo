@@ -2,8 +2,8 @@ var number_sightings;
 var topo_us;
 
 var mapSVG, map;
-var m_width = 1000,
-    mapWidth = 1000,
+var m_width = 900,
+    mapWidth = 900,
     mapHeight = 600,
     country,
     state;
@@ -20,7 +20,7 @@ var mapZOOM = d3.zoom()
 var path = d3.geoPath()
     .projection(projection);
 
-var color = d3.scaleThreshold()
+var Map_color = d3.scaleThreshold()
     .domain([0, 5, 100, 200, 500, 1000, 5000, 10000])
     .range(colorbrewer.YlGnBu[9]);
 //d3.schemeBlues[9]
@@ -39,24 +39,18 @@ function placeKey(Xmin, Xmax, ticks) {
 
 
 
-var x = d3.scaleThreshold()
+var Map_x = d3.scaleThreshold()
     .domain([0, 5, 100, 200, 500, 1000, 5000, 10000])
     .range(placeKey(0, 360, 10));
 var yMap = d3.scaleThreshold()
     .domain([0, 5, 100, 200, 500, 1000, 5000, 10000])
     .range(placeKey(-325, 35, 10).reverse());
 
-// var x = d3.scaleLinear()
+// var Map_x = d3.scaleLinear()
 //     .domain([0, 10000])
 //     .rangeRound([600, 860]);
 
-d3.queue()
-	.defer(d3.json, '/datafiles/world_map_v2.json')
-	.defer(d3.json, '/datafiles/number_sightings.json')
-    .defer(d3.csv, '/datafiles/ufo.csv')
-	.await(ready_map);
-
-function ready_map(error, us, sightings, ufos) {
+function ready_map(us, sightings, ufos) {
     number_sightings = sightings;
     topo_us = us;
     genMap();
@@ -65,9 +59,9 @@ function ready_map(error, us, sightings, ufos) {
     .data(topojson.feature(us, topo_us.objects.countries).features)
     .enter()
     .append("path")
-    .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); })
-    .attr("stroke", "black")
-    .attr("stroke-width", 0.2)
+    .attr("fill", function(d) { return Map_color(d.rate = total_sightings(d.id, dates)); })
+    .attr("stroke", function(d) { return colourOfCountry(d.id); })
+    .attr("stroke-width", function(d) { return colourOfCountry(d.id) == black ? 0.2 : 1.5; })
     .attr("id", function(d) { return d.id; })
     .attr("d", path).
     on("click", country_clicked);
@@ -110,7 +104,7 @@ function updateMap() {
     var update = map.transition();
     update.selectAll("path")
     .duration(750)
-    .attr("fill", function(d) { return color(d.rate = total_sightings(d.id, dates)); });
+    .attr("fill", function(d) { return Map_color(d.rate = total_sightings(d.id, dates)); });
 
     UFOimages.selectAll("image").attr("hidden", function(d) {if(parseInt(d.Year) >= dates[0] && parseInt(d.Year) <= dates[1]) {return null;} else {return "True";} });
 }
@@ -154,22 +148,22 @@ function genMap() {
     .attr("transform", "translate(50 ," + temp +")");
     g.append("rect").attr("height", 300).attr("width", 60).attr("x", -50).attr("y", -275).attr("fill", "white");
     g.selectAll("rect")
-      .data(color.range().map(function(d) {
-          d = color.invertExtent(d);
-          if (d[0] === null) d[0] = x.domain()[0];
-          if (d[1] === null) d[1] = x.domain()[1];
+      .data(Map_color.range().map(function(d) {
+          d = Map_color.invertExtent(d);
+          if (d[0] === null) d[0] = Map_x.domain()[0];
+          if (d[1] === null) d[1] = Map_x.domain()[1];
           return d;
         }))
       .enter().append("rect")
-        .attr("height", function(d) { return (x(d[1]) - x(d[0])); })
-        .attr("y", function(d) { return -x(d[0]); })
+        .attr("height", function(d) { return (Map_x(d[1]) - Map_x(d[0])); })
+        .attr("y", function(d) { return -Map_x(d[0]); })
         .attr("x", -10)
         .attr("width", 8)
-        .attr("fill", function(d) { return color(d[0]); });
+        .attr("fill", function(d) { return Map_color(d[0]); });
 
     g.append("text")
         .attr("class", "caption")
-        .attr("x", x.range()[0] - 45)
+        .attr("x", Map_x.range()[0] - 45)
         .attr("y", 20)
         .attr("fill", "#000")
         .attr("text-anchor", "start")
@@ -180,7 +174,7 @@ function genMap() {
         .tickSize(12)
         .tickPadding(3)
         .tickFormat(function(yMap, i) { return i ? yMap : yMap; })
-        .tickValues(color.domain()))
+        .tickValues(Map_color.domain()))
       .select(".domain")
         .remove();
 }
@@ -204,7 +198,8 @@ function get_xyz(d) {
   var y = (bounds[1][1] + bounds[0][1]) / 2 + (mapHeight / z / 6);
   return [x, y, z];
 }
-var old_country = ['USA'];
+
+
 function country_clicked(d) {
     if (d3.event.defaultPrevented) { return; }
   map.selectAll(["#states", "#cities"]).remove();
@@ -214,22 +209,18 @@ function country_clicked(d) {
     map.selectAll("#" + country.id).style('display', null);
   }
 
-  if (d && country !== d) {
-    var xyz = get_xyz(d);
+  if (insert_country(d.id)) {
     country = d;
-     //zoom(xyz);
-     countries=[country.id];
-     heatmapChart(file_csv,countries,dates);
+     updateAll();
      d3.select("#mapid").text(country.id);
-     d3.select("#"+country.id).transition().attr("stroke", "red").attr("stroke-width", 1.5);
-     d3.select("#"+old_country).transition().attr("stroke", "black").attr("stroke-width", 0.2);
-     old_country = country.id;
+     d3.select("#"+country.id).transition().attr("stroke", colourOfCountry(country.id)).attr("stroke-width", 1.5);
+     d3.select("#"+old_country).transition().attr("stroke", colourOfCountry(old_country.id)).attr("stroke-width", 0.2);
   } else {
     //var xyz = [mapWidth / 2, mapHeight / 1.5, 1];
     //country = null;
     //zoom(xyz);
     //countries=['USA'];
-    //heatmapChart(file_csv,countries,dates);
+    //heatmapChart(HeatMap_csv,countries,dates);
   }
 
 }
@@ -242,7 +233,7 @@ function reset() {
   country = null;
   zoom(xyz);
   mapSVG.selectAll("circle").transition().duration(750).attr("transform", null);
-  heatmapChart(file_csv,countries,dates);
+  updateAll();
 }
 
 $(window).resize(function() {

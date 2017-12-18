@@ -1,31 +1,9 @@
-var countries = ['AFG', 'GBR', 'PRT','ESP'];
-countries.push('world');
-var dates =[1960,2014];
 var metric="gdp";
 var dataset;
 
+
 var getData_genScatter = function(dates, countries,metric){
-
-d3.csv("datafiles/allInfo_byYear.csv", function (data) {
-    data.forEach(function(d) {
-          d.year = +d.year;
-          // d.year = parseDate(d.year);
-          d.sightings = +d.sightings;
-          d.gdp = +d.gdp;
-          d.unemployment = +d.unemployment;
-          d.internet = +d.internet;
-          d.scifi = +d.scifi;
-          // d.country = d.country;
-      });
-
-    // data = data.filter(function(d)
-    // {
-        // if(( countries.includes(d["country"]))  && (d["year"] >= dates[0]) && (d["year"] <= dates[1]) && d["country"]!="world")
-        // {
-            // return d;
-        // }
-    // })
-    data = data.filter(function(d)
+    var data = ScatterPlot_data.filter(function(d)
     {
         if((d["year"] >= dates[0]) && (d["year"] <= dates[1]) && d["country"]!="world")
         {
@@ -99,7 +77,7 @@ d3.csv("datafiles/allInfo_byYear.csv", function (data) {
 
     // console.log(dataset);
     gen_scatterplot(metric);
-});}
+}
 
 
 function gen_scatterplot(metric){
@@ -107,38 +85,38 @@ function gen_scatterplot(metric){
     var data = dataset;
 
     var margin = { top: 20, right: 20, bottom: 30, left: 30 };
-    width = (600 - margin.left - margin.right)/3,
-    height = 480 - margin.top - margin.bottom;
+    var scatterplot_width = (600 - margin.left - margin.right)/3;
+    var scatterplot_height = 480 - margin.top - margin.bottom;
 
     var tooltip = d3.select("#scatterplot").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
 
-    var x = d3.scaleLog()
-          .range([0, width])
+    var scatterplot_x = d3.scaleLog()
+          .range([0, scatterplot_width])
           .nice();
 
     var y = d3.scaleLinear()
-        .range([height, 0]);
+        .range([scatterplot_height, 0]);
 
-    var xAxis = d3.axisBottom(x).ticks(0),
+    var xAxis = d3.axisBottom(scatterplot_x).ticks(0),
         yAxis = d3.axisLeft(y).ticks(0);
 
-    var brush = d3.brush().extent([[0, 0], [width, height]]).on("end", brushended),
+    var brush = d3.brush().extent([[0, 0], [scatterplot_width, scatterplot_height]]).on("end", brushended),
         idleTimeout,
         idleDelay = 350;
 
     var svg = d3.select("#scatterplot").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
+                .attr("width", scatterplot_width + margin.left + margin.right)
+                .attr("height", scatterplot_height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var clip = svg.append("defs").append("svg:clipPath")
         .attr("id", "clip")
         .append("svg:rect")
-        .attr("width", width )
-        .attr("height", height )
+        .attr("width", scatterplot_width )
+        .attr("height", scatterplot_height )
         .attr("x", 0)
         .attr("y", 0);
 
@@ -152,9 +130,12 @@ function gen_scatterplot(metric){
 
     var xExtent = d3.extent(data, function (d) { return d.sightings; });
     var yExtent = d3.extent(data, function (d) { return d[metric]; });
-    x.domain(d3.extent(data, function (d) { return d.sightings; })).nice();
+    var sc_domain = d3.extent(data, function (d) { return d.sightings; });
+    if (sc_domain[0] == 0) {
+        sc_domain[0] = 1;
+    }
+    scatterplot_x.domain(sc_domain).nice();
     y.domain(d3.extent(data, function (d) { return d[metric]; })).nice();
-
     var scatter = svg.append("g")
          .attr("id", "scatterplot")
          .attr("clip-path", "url(#clip)");
@@ -164,7 +145,7 @@ function gen_scatterplot(metric){
       .enter().append("circle")
         .attr("class", "dot")
         .attr("r", 4)
-        .attr("cx", function (d) { return x(d.sightings); })
+        .attr("cx", function (d) { return scatterplot_x(d.sightings); })
         .attr("cy", function (d) { return y(d[metric]); })
         .attr("opacity", 0.5)
         // .style("fill", "#4292c6");
@@ -176,13 +157,13 @@ function gen_scatterplot(metric){
     svg.append("g")
        .attr("class", "x axis")
        .attr('id', "axis--x")
-       .attr("transform", "translate(0," + height + ")")
+       .attr("transform", "translate(0," + scatterplot_height + ")")
        .call(xAxis);
 
     svg.append("text")
      .style("text-anchor", "end")
-        .attr("x", width)
-        .attr("y", height - 8)
+        .attr("x", scatterplot_width)
+        .attr("y", scatterplot_height - 8)
      .text("sightings (log-scale)");
 
     // y axis
@@ -207,11 +188,11 @@ function gen_scatterplot(metric){
         var s = d3.event.selection;
         if (!s) {
             if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-            x.domain(d3.extent(data, function (d) { return d.sightings; })).nice();
+            scatterplot_x.domain(d3.extent(data, function (d) { return d.sightings; })).nice();
             y.domain(d3.extent(data, function (d) { return d[metric]; })).nice();
         } else {
 
-            x.domain([s[0][0], s[1][0]].map(x.invert, x));
+            scatterplot_x.domain([s[0][0], s[1][0]].map(scatterplot_x.invert, scatterplot_x));
             y.domain([s[1][1], s[0][1]].map(y.invert, y));
             scatter.select(".brush").call(brush.move, null);
         }
@@ -228,10 +209,8 @@ function gen_scatterplot(metric){
         svg.select("#axis--x").transition(t).call(xAxis);
         svg.select("#axis--y").transition(t).call(yAxis);
         scatter.selectAll("circle").transition(t)
-        .attr("cx", function (d) { return x(d.sightings); })
+        .attr("cx", function (d) { return scatterplot_x(d.sightings); })
         .attr("cy", function (d) { return y(d[metric]); });
     }
 
 }
-
-getData_genScatter(dates, countries, metric);
