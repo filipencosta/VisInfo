@@ -188,7 +188,11 @@ function gen_scatterplot(metric){
         var s = d3.event.selection;
         if (!s) {
             if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-            scatterplot_x.domain(d3.extent(data, function (d) { return d.sightings; })).nice();
+            var sc_domain = d3.extent(data, function (d) { return d.sightings; });
+            if (sc_domain[0] == 0) {
+                sc_domain[0] = 1;
+            }
+            scatterplot_x.domain(sc_domain).nice();
             y.domain(d3.extent(data, function (d) { return d[metric]; })).nice();
         } else {
 

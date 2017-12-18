@@ -1,5 +1,5 @@
 // Global Variables
-var countries = [];
+var countries = ['USA'];
 var old_country = ['USA'];
 var dates =[1990,2014];
 var metric = "gdp";
@@ -114,6 +114,6 @@ function colourOfCountry(country) {
 }
 
 function resetCountries() {
-    var countries = [];
+    var countries = ['USA'];
     var country_selection = [0, 1, 2, 3, 4];
 }
