@@ -91,9 +91,9 @@ $(document).click(function (e) {
 });
 var num_countries = 0;
 var changebuttoncountry=function(){
-			//$(document).ready(function() {
+			$(document).ready(function() {
 				//console.log(typeof countries);
-			$('#countries_select').val(countries).trigger('change.select2');
+			$('#countries_select').val(countries).trigger('change.select2');});
 		};
 
 
