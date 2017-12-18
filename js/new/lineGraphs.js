@@ -6,7 +6,7 @@
 var LineGraph_div = d3.select('#buttons_area');
 var LineGraph_margin = {top: 10, right: 10, bottom: 30, left: 25};
 var LineGraph_width = (600 - LineGraph_margin.left - LineGraph_margin.right);
-var LineGraph_height = (280 - LineGraph_margin.top - LineGraph_margin.bottom);
+var LineGraph_height = (360 - LineGraph_margin.top - LineGraph_margin.bottom);
 
 //var parseDate = d3.timeParse("%Y-%m-%d");
 var parseDate = d3.timeParse("%Y");
@@ -40,7 +40,7 @@ var x_min,x_max;
 var LineGraph_svg = d3.select("#area1").append("svg")
 .attr("width", LineGraph_width + LineGraph_margin.left + LineGraph_margin.right)
 .attr("height", LineGraph_height + LineGraph_margin.top + LineGraph_margin.bottom)
-.attr("transform", "translate(0, 100)")
+.attr("transform", "translate(0, 30)")
 .append("g")
 .attr("transform", "translate(" + LineGraph_margin.left + "," + LineGraph_margin.top + ")");
 
@@ -142,7 +142,7 @@ linegraph(countries, dates, file_path, LineGraph_svg, "sightings");
 var LineGraph_svg2 = d3.select("#area2").append("svg")
 .attr("width", LineGraph_width + LineGraph_margin.left + LineGraph_margin.right)
 .attr("height", LineGraph_height + LineGraph_margin.top + LineGraph_margin.bottom)
-.attr("transform", "translate(0, 85)")
+.attr("transform", "translate(0, 15)")
 .append("g")
 .attr("transform", "translate(" + LineGraph_margin.left + "," + LineGraph_margin.top + ")");
 
