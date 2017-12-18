@@ -163,10 +163,9 @@ LineGraph_div.append('select')
 .text(function (d) { return d; });
 
 function variableChange() {
-    LineGraph_svg2.selectAll("*").remove();//clean previous plot
     var value = this.value; //get social variable chosen by user
     metric = metrics[value];
-    linegraph(countries, dates, file_path,LineGraph_svg2,metrics[value]);//draw new plot
+    linegraph_update(countries, dates, file_path,LineGraph_svg2,metrics[value]);//draw new plot
 
     //scatterplot:
     d3.select("#scatterplot").selectAll("*").remove();//clean previous plot
@@ -250,7 +249,7 @@ function linegraph_update(countries, dates, file_path, canvas, my_metric) {
         lines.transition().duration(750)
         .attr("d", function (d) { return LineGraph_line(d.values); })
         .style("stroke", function (d) { return colourOfCountry(d.key); });
-        
+
         lines.exit().remove();
 
         lines.enter().append("path")
@@ -258,19 +257,6 @@ function linegraph_update(countries, dates, file_path, canvas, my_metric) {
         .attr("d", function (d) { return LineGraph_line(d.values); })
         .style("stroke", function (d) { return colourOfCountry(d.key); })
         .merge(lines);
-
-
-
-        // for (var key in dataNested){
-        //     //console.log(dataNested[key]);
-        //
-        //     canvas.append("path")
-        //     .datum(dataNested[key].values)
-        //     .attr("class", "line")
-        //     .attr("d", LineGraph_line)
-        //     .style("stroke", colourOfCountry(dataNested[key].key));
-        //     i+=7;//martelada so' pq o array de cores muda gradualmente de cor, acho. Com i++ era tudo verde
-        // }
     });
 };
 

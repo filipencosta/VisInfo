@@ -202,26 +202,23 @@ function get_xyz(d) {
 
 function country_clicked(d) {
     if (d3.event.defaultPrevented) { return; }
-  map.selectAll(["#states", "#cities"]).remove();
-  state = null;
+      if (country) {
+        map.selectAll("#" + country.id).style('display', null);
+      }
 
-  if (country) {
-    map.selectAll("#" + country.id).style('display', null);
-  }
+      if (insert_country(d.id)) {
+        country = d;
 
-  if (insert_country(d.id)) {
-    country = d;
-
-     d3.select("#"+country.id).transition().attr("stroke", colourOfCountry(country.id)).attr("stroke-width", 1.5);
-     if (countries.length >= 5) {
+         d3.select("#"+country.id).transition().attr("stroke", colourOfCountry(country.id)).attr("stroke-width", 1.5);
+         if (countries.length >= 5) {
+            d3.select("#"+old_country).transition().attr("stroke", colourOfCountry(old_country.id)).attr("stroke-width", 0.2);
+         }
+         updateAll();
+      } else {
+        remove_country(d.id);
         d3.select("#"+old_country).transition().attr("stroke", colourOfCountry(old_country.id)).attr("stroke-width", 0.2);
-     }
-     updateAll();
-  } else {
-    remove_country(d.id);
-    d3.select("#"+old_country).transition().attr("stroke", colourOfCountry(old_country.id)).attr("stroke-width", 0.2);
-    updateAll();
-  }
+        updateAll();
+      }
 
 }
 

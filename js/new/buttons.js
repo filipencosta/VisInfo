@@ -16,13 +16,13 @@ $(document).ready(function() {
 		 placeholder: 'Select Country'
 	});
 	$('#movie').val(null).trigger('change');
-	//$('#countries').val(['PRT','USA']).trigger('change');
+	//$('#countries_select').val(['PRT','USA']).trigger('change');
 
-	$('#countries').on('change.select2', function (e) {
-			var newCountries=$('#countries').select2('data');
-			countries=[];
+	$('#countries_select').on('change', function (e) {
+			var newCountries=$('#countries_select').select2('data');
 			for(var i in newCountries){
-				countries.push(newCountries[i].id);
+				insert_country(newCountries[i].id);
+				d3.select("#"+newCountries[i].id).transition().attr("stroke", colourOfCountry(newCountries[i].id)).attr("stroke-width", 1.5);
 			}
 			updateAll();
 
@@ -54,7 +54,7 @@ div.selectAll('option')
 
 });
 
-var div2 = d3.select('#countries');
+var div2 = d3.select('#countries_select');
 d3.csv("datafiles/countrySort.csv", function(data) {
 	// for (var i = 0; i < data.length; i++) {
 	//         moviedata.push(data[i].title,year+'/'+data[i].Year});
@@ -79,33 +79,25 @@ $(document).click(function (e) {
     //check if the clicked area is dropDown or not
   	if($(e.target)[0]==$('*')[0]){
   		$('#movie').select2('close');
-  		$('#countries').select2('close');
+  		$('#countries_select').select2('close');
   	}
     // if ((e.target.id != 'select2-movie-container')&&($(e.target).attr('class')!='select2-selection__arrow')&&($(e.target).attr('role')!='presentation')) {
     //     $('#movie').select2('close');
 
     // }
    	// if(((typeof $(e.target).attr('class'))=='undefined')){
-    // 		$('#countries').select2('close');
+    // 		$('#countries_select').select2('close');
     // 	}
 });
+var num_countries = 0;
 var changebuttoncountry=function(){
 			//$(document).ready(function() {
 				//console.log(typeof countries);
-				var finalcountries=[];
-				for (var i in countries){
-					console.log(countries[i]);
-					finalcountries.push(countries[i]);
-				}
-				//console.log(finalcountries);
-				//$("#countries").select2("val", countries[0]).trigger('change');
-		 		//$('#countries').val(finalcountries).trigger('change'); // Select the option with a value of '1'
-		 	//$('#countries').trigger('change'); // Notify any JS components that the value changed
-			 //});
-		}
+			$('#countries_select').val(countries).trigger('change.select2');
+		};
 
 
 // $(document).ready(function() {
-// 	$('#countries').val(['PRT','USA']); // Select the option with a value of '1'
-// 	$('#countries').trigger('change'); // Notify any JS components that the value changed
+// 	$('#countries_select').val(['PRT','USA']); // Select the option with a value of '1'
+// 	$('#countries_select').trigger('change'); // Notify any JS components that the value changed
 // });
