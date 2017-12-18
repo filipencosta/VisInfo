@@ -16,6 +16,9 @@
    <script src="js/colourbrewer.min.js"></script>
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
    <link rel="stylesheet" href="css/rSlider.css">
+   <link rel='stylesheet' href='css/lineGraphAntonio.css'>
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
    <script src="js/rSlider.js"></script>
    <script src="js/underscore.js"></script>
 
@@ -41,17 +44,37 @@
       </div>
 
     <div class="row">
-        <div class="col-sm-6" id="map"> </div>
-        <div class="col-sm-1"> </div>
-        <div class="col-sm-5" id="map2"> </div>
+        <div class="col-sm-8" id="map"> </div>
+        <div class="col-sm-2">
+            <div class="row">
+              <div class="col-md-12" id="area1"></div>
+            </div>
+            <div class="row">
+              <div class="col-md-12" id="buttons_area"></div>
+            </div>
+            <div class="row">
+              <div class="col-md-12" id="area2"></div>
+            </div>
+        </div>
+        <div class="col-sm-2" id="scatterplot">
+        <p>Scatter plot: Select area to zoom in. Double-click to zoom out. </p>
+        </div>
     </div>
 
     <div class="row">
         <div class="col-sm-6" id="heatmap"> </div>
-        <div class="col-sm-6"> </div>
+        <div class="col-sm-6">
+            <select class="js-example-basic-multiple-2" name="movie" multiple="multiple" id="movie" style="width: 30%"></select>
+            <select class="js-example-basic-multiple" name="states[]" multiple="multiple" id='countries' style="width: 30%"></select>
+            <div class="col-sm-12" id ='slopegraph'></div>
+        </div>
     </div>
 
   </body>
-  <script src="js/heatmap_v2.js"></script>
   <script src="js/map.js"></script>
+  <script type='text/javascript' src='js/lineGraphsAntonio2.js'></script>
+  <script type='text/javascript' src='js/scatterplotAntonio2.js'></script>
+  <script src="js/buttons.js"></script>
+  <script src="js/slopegraph.js"></script>
+  <script src="js/heatmap_v2.js"></script>
 </html>

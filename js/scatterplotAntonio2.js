@@ -1,8 +1,10 @@
 var countries = ['AFG', 'GBR', 'PRT','ESP'];
 countries.push('world');
 var dates =[1960,2014];
-var metric="internet";
+var metric="gdp";
 var dataset;
+
+var getData_genScatter = function(dates, countries,metric){ 
 
 d3.csv("datafiles/allInfo_byYear.csv", function (data) {
     data.forEach(function(d) {
@@ -25,7 +27,7 @@ d3.csv("datafiles/allInfo_byYear.csv", function (data) {
     // })
     data = data.filter(function(d)
     {
-        if(d["country"]!="world")
+        if((d["year"] >= dates[0]) && (d["year"] <= dates[1]) && d["country"]!="world")
         {
             return d;
         }
@@ -85,7 +87,7 @@ d3.csv("datafiles/allInfo_byYear.csv", function (data) {
     });
     ////////DATAGROUPER DECLARATION - END
         
-    console.log(data);
+    // console.log(data);
         
     dataset = DataGrouper.sum(data,["country"]);
     dataset.forEach(function(d){
@@ -95,9 +97,9 @@ d3.csv("datafiles/allInfo_byYear.csv", function (data) {
 
 
 
-    console.log(dataset);
+    // console.log(dataset);
     gen_scatterplot(metric);
-});
+});}
 
 
 function gen_scatterplot(metric){
@@ -105,22 +107,22 @@ function gen_scatterplot(metric){
     var data = dataset;
     
     var margin = { top: 20, right: 20, bottom: 30, left: 30 };
-    width = 600 - margin.left - margin.right,
+    width = (600 - margin.left - margin.right)/3,
     height = 480 - margin.top - margin.bottom;
 
     var tooltip = d3.select("#scatterplot").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
 
-    var x = d3.scaleLinear()          
+    var x = d3.scaleLog()          
           .range([0, width])
           .nice();
 
     var y = d3.scaleLinear()
         .range([height, 0]);
 
-    var xAxis = d3.axisBottom(x).ticks(12),
-        yAxis = d3.axisLeft(y).ticks(12 * height / width);
+    var xAxis = d3.axisBottom(x).ticks(0),
+        yAxis = d3.axisLeft(y).ticks(0);
 
     var brush = d3.brush().extent([[0, 0], [width, height]]).on("end", brushended),
         idleTimeout,
@@ -181,7 +183,7 @@ function gen_scatterplot(metric){
      .style("text-anchor", "end")
         .attr("x", width)
         .attr("y", height - 8)
-     .text("sightings");
+     .text("sightings (log-scale)");
 
     // y axis
     svg.append("g")
@@ -231,3 +233,5 @@ function gen_scatterplot(metric){
     }
 
 }
+
+getData_genScatter(dates, countries, metric);

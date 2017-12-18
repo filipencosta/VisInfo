@@ -1,13 +1,21 @@
 //NOTA: isto pressupoe q o .html tenha area1, buttons_area, area2
 
 // var div = d3.select('body').append('div');
+
+var countries = ['AFG', 'GBR', 'PRT','ESP'];
+countries.push('world');
+var dates =[1960,2014];
+
+var gen_lineplots = function (dates, countries){
+    
 var div = d3.select('#buttons_area');
 
 var countrydata=[];
 
-var margin = {top: 20/2, right: 20/2, bottom: 30/2, left: 50/2},
-    width = (960 - margin.left - margin.right)/2;
-    height = (500 - margin.top - margin.bottom)/2;
+
+var margin = {top: 10, right: 10, bottom: 30, left: 25},
+    width = (450 - margin.left - margin.right)/2.5;
+    height = (250 - margin.top - margin.bottom);
 
 //var parseDate = d3.timeParse("%Y-%m-%d");
 var parseDate = d3.timeParse("%Y");
@@ -23,7 +31,8 @@ var xAxis = d3.axisBottom()
     .scale(x);
 
 var yAxis = d3.axisLeft()
-    .scale(y);
+    .scale(y)
+    .ticks(0);
     ;//.tickFormat(formatPct);
 
 var metric;
@@ -49,9 +58,9 @@ d3.csv("datafiles/countrySort.csv", function(error, data) {
 });
 
 // INPUT TO lineGraph
-var countries = ['AFG', 'GBR', 'PRT','ESP'];
-countries.push('world');
-var dates =[1960,2014];
+// var countries = ['AFG', 'GBR', 'PRT','ESP'];
+// countries.push('world');
+// var dates =[1960,2014];
 var sightings_file_path="datafiles/groupbyCountryYear_addedZeros.csv"; //#sightings
 // var file_path="datafiles/internet_formatted_addedZeros.csv"; //%internet access
 var file_path="datafiles/allInfo_byYear.csv"; //#sightings
@@ -176,6 +185,15 @@ var linegraph = function(countries, dates, file_path, canvas, my_metric) {
           .style("text-anchor", "end")
           .text("Cumulative Return");
 
+
+     
+     canvas.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "1em")
+        .style("text-anchor", "end")
+        .text(my_metric);
+          
       i=0;
       metric=my_metric;
       for (key in dataNested){
@@ -247,5 +265,12 @@ function variableChange() {
           svg2.selectAll("*").remove();//clean previous plot
           var value = this.value //get social variable chosen by user
           linegraph(countries, dates, file_path,svg2,metrics[value]);//draw new plot
+          
+          //scatterplot:
+          d3.select("#scatterplot").selectAll("*").remove();//clean previous plot
+          gen_scatterplot(metrics[value]);
+          // linegraph(countries, dates, file_path,svg2,metrics[value]);//draw new plot
          }
-         
+}
+
+gen_lineplots(dates,countries);

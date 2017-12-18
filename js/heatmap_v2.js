@@ -14,12 +14,12 @@ buckets = 4,
 colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb"]//,"#41b6c4","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"], // alternatively colorbrewer.YlGnBu[9]
 days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
 times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a", "12a", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p", "12p"];
-var svg = d3.select("#heatmap").append("svg")
+var svg_heatmap = d3.select("#heatmap").append("svg")
 .attr("width", width + margin.left + margin.right)
 .attr("height", height + margin.top + margin.bottom)
 .append("g")
 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-var dayLabels = svg.selectAll(".dayLabel")
+var dayLabels = svg_heatmap.selectAll(".dayLabel")
 .data(days)
 .enter().append("text")
 .text(function (d) { return d; })
@@ -28,7 +28,7 @@ var dayLabels = svg.selectAll(".dayLabel")
 .style("text-anchor", "end")
 .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
 .attr("class", function (d, i) { return ((i >= 0 && i <= 4) ? "dayLabel mono axis axis-workweek" : "dayLabel mono axis"); });
-var timeLabels = svg.selectAll(".timeLabel")
+var timeLabels = svg_heatmap.selectAll(".timeLabel")
 .data(times)
 .enter().append("text")
 .text(function(d) { return d; })
@@ -141,7 +141,7 @@ var heatmapChart = function(data,country,year){
             //.domain(domain)
             .range(colors);
             $(".hour").remove();
-            var cards = svg.selectAll(".hour")
+            var cards = svg_heatmap.selectAll(".hour")
             .data(finalfilteredData, function(d) {return d.day+':'+d.hour;});
             
             cards.data(finalfilteredData, function(d) {return d.day+':'+d.hour;}).enter().append("rect")
@@ -154,16 +154,16 @@ var heatmapChart = function(data,country,year){
             .attr("height", gridSize)
             .style("fill", function(d) { return colorScale(d.value); });
             //cards.transition().duration(750).style("fill", function(d) { return colorScale(d.value); });
-           var test= svg.selectAll('.hour').data(finalfilteredData);
+           var test= svg_heatmap.selectAll('.hour').data(finalfilteredData);
             test.append("title").text(function(d) { return d.value; });
             //cards.exit().remove();
              $(".legend").remove();
-            var legend = svg.selectAll(".legend")
+            var legend = svg_heatmap.selectAll(".legend")
             .data([0].concat(colorScale.quantiles()), function(d) { return d; });
             legend.enter().append("g")
             .attr("class", "legend");
            
-            var test= svg.selectAll('.legend').data([0].concat(colorScale.quantiles()), function(d) { return d; });
+            var test= svg_heatmap.selectAll('.legend').data([0].concat(colorScale.quantiles()), function(d) { return d; });
             test.append('rect')
             .attr("x", function(d, i) { return legendElementWidth * i; })
             .attr("y", height)
