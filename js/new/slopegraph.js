@@ -165,12 +165,12 @@ var slopegraph = function(data,country,year){
         var finalfilteredData1=[];
         var finalfilteredData2=[];
         var temp = JSON.parse(JSON.stringify(filteredData1));
-        var maxtopleft=5;
-        if(filteredData1.length<5){
+        var maxtopleft=3;
+        if(filteredData1.length<3){
             maxtopleft=filteredData1.length;
         }
-        var maxtopright=5;
-        if(filteredData2.length<5){
+        var maxtopright=3;
+        if(filteredData2.length<3){
             maxtopright=filteredData2.length;
         }
         for(var i = 0; i<maxtopleft;i++){

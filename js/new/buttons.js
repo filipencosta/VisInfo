@@ -90,18 +90,19 @@ $(document).click(function (e) {
     // 	}
 });
 var changebuttoncountry=function(){
-			//$(document).ready(function() {
+			$(document).ready(function() {
 				//console.log(typeof countries);
 				var finalcountries=[];
 				for (var i in countries){
 					console.log(countries[i]);
 					finalcountries.push(countries[i]);
 				}
+				
 				//console.log(finalcountries);
-				//$("#countries").select2("val", countries[0]).trigger('change');
+				//$("#countries").select2("val", countries[0]);
 		 		//$('#countries').val(finalcountries).trigger('change'); // Select the option with a value of '1'
 		 	//$('#countries').trigger('change'); // Notify any JS components that the value changed
-			 //});
+			 });
 		}
 
 
