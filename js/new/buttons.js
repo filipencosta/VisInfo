@@ -38,6 +38,20 @@ $(document).ready(function() {
 
 
 	});
+
+	$('#countries_select').on('select2:unselecting', function (e) {
+    	var newCountries=$('#countries_select').select2('data');
+    	var finalcountrieslist=[];
+    	for(var i in newCountries){
+    		if(newCountries[i].selected==false){
+    			remove_country(newCountries[i].id);
+    			d3.select("#"+newCountries[i].id).transition().attr("stroke", colourOfCountry(newCountries[i].id)).attr("stroke-width", 0.2);
+    		}
+    	}
+    	updateAll();
+    	//changebuttoncountry();
+	});
+
 });
 var div = d3.select('#movie');
 d3.csv("datafiles/MovieFinal.csv", function(data) {

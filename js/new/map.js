@@ -72,7 +72,7 @@ function ready_map(us, sightings, ufos) {
 
 function ready_csv(ufos) {
     var coor;
-    ufos = ufos.slice(0, 1000);
+    //ufos = ufos.slice(0, 1000);
     UFOimages.selectAll("image")
         .data(ufos).enter()
         .append("image")
