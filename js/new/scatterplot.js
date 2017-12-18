@@ -149,7 +149,7 @@ function gen_scatterplot(metric){
         .attr("cy", function (d) { return y(d[metric]); })
         .attr("opacity", 0.5)
         // .style("fill", "#4292c6");
-        .style("fill", function(d) {if (d.highlight){return "#FF0000"} else{return "#D3D3D3"}});
+        .style("fill", function(d) {if (d.highlight){return colourOfCountry(d.country);} else{return "#D3D3D3"}});
         // .on('mouseover', tip.show)
         // .on('mouseout', tip.hide);
 

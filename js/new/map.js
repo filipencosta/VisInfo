@@ -211,16 +211,16 @@ function country_clicked(d) {
 
   if (insert_country(d.id)) {
     country = d;
-     updateAll();
-     d3.select("#mapid").text(country.id);
+
      d3.select("#"+country.id).transition().attr("stroke", colourOfCountry(country.id)).attr("stroke-width", 1.5);
-     d3.select("#"+old_country).transition().attr("stroke", colourOfCountry(old_country.id)).attr("stroke-width", 0.2);
+     if (countries.length >= 5) {
+        d3.select("#"+old_country).transition().attr("stroke", colourOfCountry(old_country.id)).attr("stroke-width", 0.2);
+     }
+     updateAll();
   } else {
-    //var xyz = [mapWidth / 2, mapHeight / 1.5, 1];
-    //country = null;
-    //zoom(xyz);
-    //countries=['USA'];
-    //heatmapChart(HeatMap_csv,countries,dates);
+    remove_country(d.id);
+    d3.select("#"+old_country).transition().attr("stroke", colourOfCountry(old_country.id)).attr("stroke-width", 0.2);
+    updateAll();
   }
 
 }

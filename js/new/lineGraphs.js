@@ -132,7 +132,7 @@ function linegraph(countries, dates, file_path, canvas, my_metric) {
         i=0;
         metric=my_metric;
         for (var key in dataNested){
-            console.log(dataNested[key]);
+            //console.log(dataNested[key]);
             canvas.append("path")
             .datum(dataNested[key].values)
             .attr("class", "line")

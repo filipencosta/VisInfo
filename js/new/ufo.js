@@ -1,5 +1,5 @@
 // Global Variables
-var countries = ['AFG', 'GBR', 'PRT','ESP', 'USA'];
+var countries = [];
 var old_country = ['USA'];
 var dates =[1990,2014];
 var metric = "gdp";
@@ -88,9 +88,15 @@ function insert_country(newCountry) {
 function remove_country(country) {
     var index = countries.indexOf(country);
     if (index > -1) {
+        old_country = country;
         countries.splice(index, 1);
-        country_selection.splice(index, 1);
-        country_selection.push(index);
+        console.log(index);
+        console.log(countries.length);
+        if (index != (countries.length)) {
+            var aux = country_selection[index];
+            country_selection.splice(index, 1);
+            country_selection.push(aux);
+        }
         return true;
     }
     return false;
@@ -104,4 +110,9 @@ function colourOfCountry(country) {
         return highlight;
     }
     return black;
+}
+
+function resetCountries() {
+    var countries = [];
+    var country_selection = [0, 1, 2, 3, 4];
 }
