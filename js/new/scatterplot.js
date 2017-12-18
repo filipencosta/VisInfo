@@ -85,8 +85,8 @@ function gen_scatterplot(metric){
     var data = dataset;
 
     var margin = { top: 20, right: 20, bottom: 30, left: 30 };
-    var scatterplot_width = (600 - margin.left - margin.right)/3;
-    var scatterplot_height = 480 - margin.top - margin.bottom;
+    var scatterplot_width = (600 - margin.left - margin.right);
+    var scatterplot_height = 400 - margin.top - margin.bottom;
 
     var tooltip = d3.select("#scatterplot").append("div")
         .attr("class", "tooltip")
@@ -144,10 +144,10 @@ function gen_scatterplot(metric){
         .data(data)
       .enter().append("circle")
         .attr("class", "dot")
-        .attr("r", 4)
+        .attr("r", 6)
         .attr("cx", function (d) { return scatterplot_x(d.sightings); })
         .attr("cy", function (d) { return y(d[metric]); })
-        .attr("opacity", 0.5)
+        .attr("opacity", 0.9)
         // .style("fill", "#4292c6");
         .style("fill", function(d) {if (d.highlight){return colourOfCountry(d.country);} else{return "#D3D3D3"}});
         // .on('mouseover', tip.show)

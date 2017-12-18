@@ -95,9 +95,3 @@ var changebuttoncountry=function(){
 				//console.log(typeof countries);
 			$('#countries_select').val(countries).trigger('change.select2');});
 		};
-
-
-// $(document).ready(function() {
-// 	$('#countries_select').val(['PRT','USA']); // Select the option with a value of '1'
-// 	$('#countries_select').trigger('change'); // Notify any JS components that the value changed
-// });

@@ -37,3 +37,7 @@ h1 {
 .nowrap {
     white-space: nowrap;
 }
+
+div.padding {
+    padding-left: 75px;
+}

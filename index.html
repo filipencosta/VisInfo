@@ -28,28 +28,36 @@
 
   <body>
      <div class="row">
-         <div class="col-sm-1"></div>
-         <div class="col-sm-7"><h3 class="display-4"> Ufo Sightings </h3> </div>
-         <div class="col-sm-4"> </div>
+         <div class="col-sm-4"></div>
+         <div class="col-sm-4"></div>
+         <div class="col-sm-4"><h3 class="display-4"> Ufo Sightings </h3></div>
      </div>
 
+     <div class="row">
+         <div class="col-sm-4 padding"> <input type="text" id="slider" class="slider" > </div>
+         <div class="col-sm-4">
+             <select class="js-example-basic-multiple-2" name="movie" multiple="multiple" id="movie" style="width: 30%"></select>
+             <select class="js-example-basic-multiple" name="states[]" multiple="multiple" id='countries_select' style="width: 30%"></select>
+         </div>
 
-      <div class="row">
-          <div class="col-sm-1"> </div>
-          <div class="col-sm-4">
-              <span class="nowrap">Country clicked: </span>
-              <span class="nowrap" id="mapid"></span>
-              <button class="btn-primary" id="reset">Reset</button></div>
-          <div class="col-sm-6"> <input type="text" id="slider" class="slider" > </div>
-          <div class="col-sm-1"> </div>
-      </div>
+
+     </div>
 
     <div class="row">
-        <div class="col-sm-8" id="map"> </div>
-        <div class="col-sm-2">
+        <div class="col-sm-5" id="map"> </div>
+        <div class="col-sm-7">
+            <div class="col-sm-6" id="heatmap"> </div>
+            <div class="col-sm-6" id ="slopegraph"> </div>
+         </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
             <div class="row">
               <div class="col-md-12" id="area1"></div>
             </div>
+        </div>
+        <div class="col-sm-4">
             <div class="row">
               <div class="col-md-12" id="buttons_area"></div>
             </div>
@@ -57,17 +65,9 @@
               <div class="col-md-12" id="area2"></div>
             </div>
         </div>
-        <div class="col-sm-2" id="scatterplot">
-        <p>Scatter plot: Select area to zoom in. Double-click to zoom out. </p>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-sm-6" id="heatmap"> </div>
-        <div class="col-sm-6">
-            <select class="js-example-basic-multiple-2" name="movie" multiple="multiple" id="movie" style="width: 30%"></select>
-            <select class="js-example-basic-multiple" name="states[]" multiple="multiple" id='countries_select' style="width: 30%"></select>
-            <div class="col-sm-12" id ='slopegraph'></div>
+        <div class="col-sm-4" id="scatterplot">
+
         </div>
     </div>
 

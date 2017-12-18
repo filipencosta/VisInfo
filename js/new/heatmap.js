@@ -1,6 +1,6 @@
 // HeatMap_Variables
-var HeatMap_margin = { top: 50, right: 0, bottom: 100, left: 30 };
-var HeatMap_width = 750 - HeatMap_margin.left - HeatMap_margin.right;
+var HeatMap_margin = { top: 50, right: 0, bottom: 170, left: 30 };
+var HeatMap_width = 550 - HeatMap_margin.left - HeatMap_margin.right;
 var HeatMap_height = 370 - HeatMap_margin.top - HeatMap_margin.bottom;
 var HeatMap_gridSize = Math.floor(HeatMap_width / 24);
 var HeatMap_legendElementWidth = HeatMap_gridSize*2;
@@ -13,27 +13,28 @@ var HeatMap_times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a"
 var HeatMap_svg = d3.select("#heatmap").append("svg")
                     .attr("width", HeatMap_width + HeatMap_margin.left + HeatMap_margin.right)
                     .attr("height", HeatMap_height + HeatMap_margin.top + HeatMap_margin.bottom)
+                    .attr("transform", "translate(-10, 100) rotate(90)")
                     .append("g")
-                    .attr("transform", "translate(" + HeatMap_margin.left + "," + HeatMap_margin.top + ")");
+                    .attr("transform", "translate(" + 20 + "," + 20 + ")");
 
 var dayLabels = HeatMap_svg.selectAll(".dayLabel")
                     .data(HeatMap_days)
                     .enter().append("text")
                     .text(function (d) { return d; })
-                    .attr("x", 0)
-                    .attr("y", function (d, i) { return i * HeatMap_gridSize; })
+                    .attr("x", function (d, i) { return (i * HeatMap_gridSize)-120; })
+                    .attr("y", 0)
                     .style("text-anchor", "end")
-                    .attr("transform", "translate(-6," + HeatMap_gridSize / 1.5 + ")")
+                    .attr("transform", "translate(-6," + HeatMap_gridSize / 1.5 + ") rotate(-90)")
                     .attr("class", function (d, i) { return ((i >= 0 && i <= 4) ? "dayLabel mono axis axis-workweek" : "dayLabel mono axis"); });
 
 var timeLabels = HeatMap_svg.selectAll(".timeLabel")
                     .data(HeatMap_times)
                     .enter().append("text")
                     .text(function(d) { return d; })
-                    .attr("x", function(d, i) { return i * HeatMap_gridSize; })
-                    .attr("y", 0)
+                    .attr("x", 0)
+                    .attr("y", function(d, i) { return i * HeatMap_gridSize; })
                     .style("text-anchor", "middle")
-                    .attr("transform", "translate(" + HeatMap_gridSize / 2 + ", -6)")
+                    .attr("transform", "translate(" + HeatMap_gridSize / 1.6 + ", -8) rotate(-90)")
                     .attr("class", function(d, i) { return ((i >= 7 && i <= 16) ? "timeLabel mono axis axis-worktime" : "timeLabel mono axis"); });
 
 var heatmapChart = function(data,country,year) {
@@ -172,9 +173,10 @@ var heatmapChart = function(data,country,year) {
             .style("fill", function(d, i) { return HeatMap_colors[i]; });
             test.append("text")
             .attr("class", "mono")
+            .attr("transform", "rotate(-90)")
             .text(function(d) { return "≥ " + Math.round(d); })
-            .attr("x", function(d, i) { return HeatMap_legendElementWidth * i; })
-            .attr("y", HeatMap_height + HeatMap_gridSize);
+            .attr("x", -189)
+            .attr("y", function(d, i) { return HeatMap_legendElementWidth * i + 25; });
         }
     );}
     // },function(error, data) {

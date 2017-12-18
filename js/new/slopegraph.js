@@ -51,15 +51,13 @@ function changecolor (classe){
 
 };
 
-var margin = {top: 50, right: 0, bottom: 100, left: 30},
+var margin = {top: 50, right: 0, bottom: 0, left: 0},
 width = 550 - margin.left - margin.right,
 height = 430 - margin.top - margin.bottom,
 labelLength = 60;
 
-var svg_slope = d3.select("#slopegraph").append("svg")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom)
-.append("g")
+var svg_slope = d3.select("#slopegraph").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("transform", "translate(-100, -50)");
+svg_slope = svg_slope.append("g")
 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
