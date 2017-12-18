@@ -66,6 +66,7 @@ function updateAll() {
     updateMap();
     updatePlots();
     slopegraph(Slopegraph_csv,countries,dates);
+    changebuttoncountry();
     // gen_lineplots(dates,countries);
     // getData_genScatter(dates, countries, metric);
     //slopegraph(Slopegraph_csv,countries,dates);

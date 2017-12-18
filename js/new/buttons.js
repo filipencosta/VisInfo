@@ -16,6 +16,7 @@ $(document).ready(function() {
 		 placeholder: 'Select Country'
 	});
 	$('#movie').val(null).trigger('change');
+	//$('#countries').val(['PRT','USA']).trigger('change');
 
 	$('#countries').on('change.select2', function (e) {
 			var newCountries=$('#countries').select2('data');
@@ -23,7 +24,7 @@ $(document).ready(function() {
 			for(var i in newCountries){
 				countries.push(newCountries[i].id);
 			}
-			slopegraph(file_csv,countries,dates);
+			updateAll();
 
 	});
 	$('#movie').on('change.select2', function (e) {
@@ -31,7 +32,8 @@ $(document).ready(function() {
 			if(newmovie.length !=0){
 				var date=parseInt(newmovie[0].id);
 				dates=[date-1,date+1]
-				slopegraph(file_csv,countries,dates);
+				//updateAll();
+				mySlider.setValues(dates[0], dates[1]);
 			}
 
 
@@ -87,6 +89,20 @@ $(document).click(function (e) {
     // 		$('#countries').select2('close');
     // 	}
 });
+var changebuttoncountry=function(){
+			//$(document).ready(function() {
+				//console.log(typeof countries);
+				var finalcountries=[];
+				for (var i in countries){
+					console.log(countries[i]);
+					finalcountries.push(countries[i]);
+				}
+				//console.log(finalcountries);
+				//$("#countries").select2("val", countries[0]).trigger('change');
+		 		//$('#countries').val(finalcountries).trigger('change'); // Select the option with a value of '1'
+		 	//$('#countries').trigger('change'); // Notify any JS components that the value changed
+			 //});
+		}
 
 
 // $(document).ready(function() {
